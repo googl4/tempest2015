@@ -72,27 +72,27 @@ cycle
 	setspriteangle( player, -playerAngle -90 )
 	angle = 0
 	if playerX < gwidth / 2 then
-		if centerX > ( gwidth / 2 ) - ( gwidth / 25 ) then
-			centerX = centerX - 2
-			centerX2 = centerX2 - 1
+		if centerX < ( gwidth / 2 ) + ( gwidth / 20 ) then
+			centerX = centerX + 2
+			centerX2 = centerX2 + 1
 		endif
 	endif
 	if playerX > gwidth / 2 then
-		if centerX < ( gwidth / 2 ) + ( gwidth / 25 ) then
-		centerX = centerX + 2
-		centerX2 = centerX2 + 1
+		if centerX > ( gwidth / 2 ) - ( gwidth / 20 ) then
+		centerX = centerX - 2
+		centerX2 = centerX2 - 1
 		endif
 	endif
 	if playerY < gheight / 2 then
-		if centerY > ( gheight / 2 ) - ( gheight / 25 ) then
-			centerY = centerY - 2
-			centerY2 = centerY2 - 1
+		if centerY < ( gheight / 2 ) + ( gheight / 20 ) then
+			centerY = centerY + 2
+			centerY2 = centerY2 + 1
 		endif
 	endif
 	if playerY > gheight / 2 then
-		if centerY < ( gheight / 2 ) + ( gheight / 25 ) then
-		centerY = centerY + 2
-		centerY2 = centerY2 + 1
+		if centerY > ( gheight / 2 ) - ( gheight / 25 ) then
+		centerY = centerY - 2
+		centerY2 = centerY2 - 1
 		endif
 	endif
 	update
@@ -116,7 +116,7 @@ def proc setup
 	oldX2 = 0
 	oldY2 = 0
 	angle = 0
-	radius = gheight / 3
+	radius = gheight / 2 - 50
 	radius2 = gheight / 8
 	vertices = rnd( 17 ) + 3
 	gap = 360 / vertices
@@ -127,7 +127,7 @@ def proc setup
 	starNum = 0
 	while starNum < 100 cycle
 		stars( starNum ) = rnd( 360 )
-		starsSpeed( starNum ) = rnd( 4 ) + 1
+		starsSpeed( starNum ) = rnd( 5 ) + 5
 		starsDist( starNum ) = rnd( gheight )
 		starNum = starNum + 1
 	repeat
