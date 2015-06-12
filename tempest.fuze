@@ -1,3 +1,9 @@
+setmode( 1280, 720 )
+dim stars( 100 )
+dim starsSpeed( 100 )
+dim starsDist( 100 )
+starX = 0
+starY = 0
 proc setup
 player = newsprite( 1 )
 loadsprite( "ship.png", player, 0 )
@@ -5,26 +11,49 @@ setspritetrans( player, 255, 0, 255 )
 setspriteorigin( player, getspritew( player ) / 2, getspriteh( player ) / 2 )
 playerAngle = 0
 oldTime = 0
-cls2
 cycle
+	cls2
 	if scankeyboard( scanright ) then
-		playerAngle = playerAngle + 5
+		playerAngle = playerAngle + 10
 	endif
 	if scankeyboard( scanleft ) then
-		playerAngle = playerAngle - 5
+		playerAngle = playerAngle - 10
 	endif
 	if scankeyboard( scanr ) then
 		proc setup
 	endif
+	colour = white
+	while starNum < 100 cycle
+		starX = starsDist( starNum ) * cos( stars( starNum ) )
+		starX = starsCenterX + starX
+		starY = starsDist( starNum ) * sin( stars( starNum ) )
+		starY = starsCenterY + starY
+		starsDist( starNum ) = starsDist( starNum ) + starsSpeed( starNum )
+		if starX < 0 then
+			starsDist( starNum ) = 20
+		endif
+		if starX > gwidth then
+			starsDist( starNum ) = 20
+		endif
+		if starY < 0 then
+			starsDist( starNum ) = 20
+		endif
+		if starY > gheight then
+			starsDist( starNum ) = 20
+		endif
+		plot( starX, starY )
+		starNum = starNum + 1
+	repeat
+	starNum = 0
 	while angle < 360 cycle
 		x = radius * cos( angle )
 		x = centerX + x
 		y = radius * sin( angle )
 		y = centerY + y
 		x2 = radius2 * cos( angle )
-		x2 = centerX + x2
+		x2 = centerX2 + x2
 		y2 = radius2 * sin( angle )
-		y2 = centerY + y2
+		y2 = centerY2 + y2
 		colour = blue
 		line( x, y, x2, y2 )
 		line( x, y, oldX, oldY )
@@ -42,6 +71,30 @@ cycle
 	plotsprite( player, playerX, playerY, 0 )
 	setspriteangle( player, -playerAngle -90 )
 	angle = 0
+	if playerX < gwidth / 2 then
+		if centerX > ( gwidth / 2 ) - ( gwidth / 25 ) then
+			centerX = centerX - 2
+			centerX2 = centerX2 - 1
+		endif
+	endif
+	if playerX > gwidth / 2 then
+		if centerX < ( gwidth / 2 ) + ( gwidth / 25 ) then
+		centerX = centerX + 2
+		centerX2 = centerX2 + 1
+		endif
+	endif
+	if playerY < gheight / 2 then
+		if centerY > ( gheight / 2 ) - ( gheight / 25 ) then
+			centerY = centerY - 2
+			centerY2 = centerY2 - 1
+		endif
+	endif
+	if playerY > gheight / 2 then
+		if centerY < ( gheight / 2 ) + ( gheight / 25 ) then
+		centerY = centerY + 2
+		centerY2 = centerY2 + 1
+		endif
+	endif
 	update
 	wait( 1 / 60 )
 repeat
@@ -50,6 +103,10 @@ end
 def proc setup
 	centerX = gwidth / 2
 	centerY = gheight / 2
+	centerX2 = centerX
+	centerY2 = centerY
+	starsCenterX = centerX
+	starsCenterY = centerY
 	x = 0
 	y = 0
 	x2 = 0
@@ -59,33 +116,64 @@ def proc setup
 	oldX2 = 0
 	oldY2 = 0
 	angle = 0
-	radius = 250
-	radius2 = 100
+	radius = gheight / 3
+	radius2 = gheight / 8
 	vertices = rnd( 17 ) + 3
 	gap = 360 / vertices
 	intro = radius / 10
 	intro2 = radius2 / 10
-	oldX = intro * cos( angle - gap )
-	oldX = centerX + oldX
-	oldY = intro * sin( angle - gap )
-	oldY = centerY + oldY
-	oldX2 = intro2 * cos( angle - gap )
-	oldX2 = centerX + oldX2
-	oldY2 = intro2 * sin( angle - gap )
-	oldY2 = centerY + oldY2
 	playerX = 0
 	playerY = 0
+	starNum = 0
+	while starNum < 100 cycle
+		stars( starNum ) = rnd( 360 )
+		starsSpeed( starNum ) = rnd( 4 ) + 1
+		starsDist( starNum ) = rnd( gheight )
+		starNum = starNum + 1
+	repeat
+	starNum = 0
 	while intro < radius cycle
 		cls2
+		oldX = intro * cos( angle - gap )
+		oldX = centerX + oldX
+		oldY = intro * sin( angle - gap )
+		oldY = centerY + oldY
+		oldX2 = intro2 * cos( angle - gap )
+		oldX2 = centerX + oldX2
+		oldY2 = intro2 * sin( angle - gap )
+		oldY2 = centerY + oldY2
+		colour = white
+		while starNum < 100 cycle
+			starX = starsDist( starNum ) * cos( stars( starNum ) )
+			starX = starsCenterX + starX
+			starY = starsDist( starNum ) * sin( stars( starNum ) )
+			starY = starsCenterY + starY
+			starsDist( starNum ) = starsDist( starNum ) + starsSpeed( starNum )
+			if starX < 0 then
+				starsDist( starNum ) = 10
+			endif
+			if starX > gwidth then
+				starsDist( starNum ) = 10
+			endif
+			if starY < 0 then
+				starsDist( starNum ) = 10
+			endif
+			if starY > gheight then
+				starsDist( starNum ) = 10
+			endif
+			plot( starX, starY )
+			starNum = starNum + 1
+		repeat
+		starNum = 0
 		while angle < 360 cycle
 			x = intro * cos( angle )
 			x = centerX + x
 			y = intro * sin( angle )
 			y = centerY + y
 			x2 = intro2 * cos( angle )
-			x2 = centerX + x2
+			x2 = centerX2 + x2
 			y2 = intro2 * sin( angle )
-			y2 = centerY + y2
+			y2 = centerY2 + y2
 			colour = blue
 			line( x, y, x2, y2 )
 			line( x, y, oldX, oldY )
@@ -100,6 +188,7 @@ def proc setup
 		intro = intro + ( radius / 25 )
 		intro2 = intro2 + ( radius2 / 25 )
 		update
+		wait( 1 / 60 )
 	repeat
 	x = 0
 	y = 0
@@ -110,8 +199,8 @@ def proc setup
 	oldY = radius * sin( angle - gap )
 	oldY = centerY + oldY
 	oldX2 = radius2 * cos( angle - gap )
-	oldX2 = centerX + oldX2
+	oldX2 = centerX2 + oldX2
 	oldY2 = radius2 * sin( angle - gap )
-	oldY2 = centerY + oldY2
+	oldY2 = centerY2 + oldY2
 	cls2
 endproc
