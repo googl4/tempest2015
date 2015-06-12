@@ -1,0 +1,117 @@
+proc setup
+player = newsprite( 1 )
+loadsprite( "ship.png", player, 0 )
+setspritetrans( player, 255, 0, 255 )
+setspriteorigin( player, getspritew( player ) / 2, getspriteh( player ) / 2 )
+playerAngle = 0
+oldTime = 0
+cls2
+cycle
+	if scankeyboard( scanright ) then
+		playerAngle = playerAngle + 5
+	endif
+	if scankeyboard( scanleft ) then
+		playerAngle = playerAngle - 5
+	endif
+	if scankeyboard( scanr ) then
+		proc setup
+	endif
+	while angle < 360 cycle
+		x = radius * cos( angle )
+		x = centerX + x
+		y = radius * sin( angle )
+		y = centerY + y
+		x2 = radius2 * cos( angle )
+		x2 = centerX + x2
+		y2 = radius2 * sin( angle )
+		y2 = centerY + y2
+		colour = blue
+		line( x, y, x2, y2 )
+		line( x, y, oldX, oldY )
+		line( x2, y2, oldX2, oldY2 )
+		oldX = x
+		oldY = y
+		oldX2 = x2
+		oldY2 = y2
+		angle = angle + gap
+	repeat
+	playerX = radius * cos( playerAngle )
+	playerX = centerX + playerX
+	playerY = radius * sin( playerAngle )
+	playerY = centerY + playerY
+	plotsprite( player, playerX, playerY, 0 )
+	setspriteangle( player, -playerAngle -90 )
+	angle = 0
+	update
+	wait( 1 / 60 )
+repeat
+end
+
+def proc setup
+	centerX = gwidth / 2
+	centerY = gheight / 2
+	x = 0
+	y = 0
+	x2 = 0
+	y2 = 0
+	oldX = 0
+	oldY = 0
+	oldX2 = 0
+	oldY2 = 0
+	angle = 0
+	radius = 250
+	radius2 = 100
+	vertices = rnd( 17 ) + 3
+	gap = 360 / vertices
+	intro = radius / 10
+	intro2 = radius2 / 10
+	oldX = intro * cos( angle - gap )
+	oldX = centerX + oldX
+	oldY = intro * sin( angle - gap )
+	oldY = centerY + oldY
+	oldX2 = intro2 * cos( angle - gap )
+	oldX2 = centerX + oldX2
+	oldY2 = intro2 * sin( angle - gap )
+	oldY2 = centerY + oldY2
+	playerX = 0
+	playerY = 0
+	while intro < radius cycle
+		cls2
+		while angle < 360 cycle
+			x = intro * cos( angle )
+			x = centerX + x
+			y = intro * sin( angle )
+			y = centerY + y
+			x2 = intro2 * cos( angle )
+			x2 = centerX + x2
+			y2 = intro2 * sin( angle )
+			y2 = centerY + y2
+			colour = blue
+			line( x, y, x2, y2 )
+			line( x, y, oldX, oldY )
+			line( x2, y2, oldX2, oldY2 )
+			oldX = x
+			oldY = y
+			oldX2 = x2
+			oldY2 = y2
+			angle = angle + gap
+		repeat
+		angle = 0
+		intro = intro + ( radius / 25 )
+		intro2 = intro2 + ( radius2 / 25 )
+		update
+	repeat
+	x = 0
+	y = 0
+	x2 = 0
+	y2 = 0
+	oldX = radius * cos( angle - gap )
+	oldX = centerX + oldX
+	oldY = radius * sin( angle - gap )
+	oldY = centerY + oldY
+	oldX2 = radius2 * cos( angle - gap )
+	oldX2 = centerX + oldX2
+	oldY2 = radius2 * sin( angle - gap )
+	oldY2 = centerY + oldY2
+	cls2
+endproc
