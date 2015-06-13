@@ -4,13 +4,22 @@ dim starsSpeed( 100 )
 dim starsDist( 100 )
 starX = 0
 starY = 0
-proc setup
 player = newsprite( 1 )
 loadsprite( "ship.png", player, 0 )
 setspritetrans( player, 255, 0, 255 )
 setspriteorigin( player, getspritew( player ) / 2, getspriteh( player ) / 2 )
 playerAngle = 0
 oldTime = 0
+dim music( 7 )
+music( 0 ) = loadmusic( "tempest1.mod" )
+music( 1 ) = loadmusic( "tempest2.mod" )
+music( 2 ) = loadmusic( "tempest3.mod" )
+music( 3 ) = loadmusic( "tempest4.mod" )
+music( 4 ) = loadmusic( "tempest_bonus_1.mod" )
+music( 5 ) = loadmusic( "tempest_bonus_2.mod" )
+music( 6 ) = loadmusic( "tempest_title.mod" )
+playmusic( music( rnd( 7 ) ), -1 )
+proc setup
 cycle
 	cls2
 	if scankeyboard( scanright ) then
@@ -21,6 +30,14 @@ cycle
 	endif
 	if scankeyboard( scanr ) then
 		proc setup
+	endif
+	if scankeyboard( scanspace ) then
+		if numLasers < maxLasers then
+			lasers( numLasers ) = playerAngle
+			lasersDist( numLasers ) = radius
+			lasersActive( numLasers ) = true
+			numLasers = numLasers + 1
+		endif
 	endif
 	colour = white
 	while starNum < 100 cycle
@@ -63,6 +80,20 @@ cycle
 		oldX2 = x2
 		oldY2 = y2
 		angle = angle + gap
+	repeat
+	colour = aqua
+	for laser = 0 to maxLasers cycle
+		if lasersActive( laser ) = true then
+			if lasersDist( laser ) > radius2 then
+				circle( ( lasersDist( laser ) * cos( lasers( laser ) ) ) + ( ( centerX + centerX2 ) / 2 ), ( lasersDist( laser ) * sin( lasers( laser ) ) ) + ( ( centerY + centerY2 ) / 2 ), 10, 1 )
+				lasersDist( laser ) = lasersDist( laser ) - 5
+			endif
+			if lasersDist( laser ) = radius2 then
+				numLasers = numLasers - 1
+				lasersDist( laser ) = radius2 - 1
+				lasersActive( laser ) = false
+			endif
+		endif
 	repeat
 	playerX = radius * cos( playerAngle )
 	playerX = centerX + playerX
@@ -124,6 +155,14 @@ def proc setup
 	intro2 = radius2 / 10
 	playerX = 0
 	playerY = 0
+	maxLasers = 10000
+	dim lasers( maxLasers )
+	dim lasersDist( maxLasers )
+	dim lasersActive( maxLasers )
+	numLasers = 0
+	laser = 0
+	stopmusic
+	playmusic( music( rnd( 7 ) ), -1 )
 	starNum = 0
 	while starNum < 100 cycle
 		stars( starNum ) = rnd( 360 )
