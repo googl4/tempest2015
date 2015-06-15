@@ -4,6 +4,8 @@ maxxres = 1920
 maxyres = 1080
 minfps = 55
 maxfps = 65
+isMaxResolution = false
+setmode( xres, yres )
 fullscreen = true
 maxStars = 100
 dim stars( maxStars )
@@ -85,25 +87,25 @@ cycle
 	if moveCount > 0 then
 		moveCount = moveCount - 1
 	endif
-	if playerX < gwidth / 2 then
+	if playerX < gwidth / 2 + 4 then
 		if centerX < ( gwidth / 2 ) + ( gwidth / 20 ) then
 			centerX = centerX + 4
 			centerX2 = centerX2 + 2
 		endif
 	endif
-	if playerX > gwidth / 2 then
+	if playerX > gwidth / 2 - 4 then
 		if centerX > ( gwidth / 2 ) - ( gwidth / 20 ) then
 		centerX = centerX - 4
 		centerX2 = centerX2 - 2
 		endif
 	endif
-	if playerY < gheight / 2 then
+	if playerY < gheight / 2 + 4 then
 		if centerY < ( gheight / 2 ) + ( gheight / 20 ) then
 			centerY = centerY + 4
 			centerY2 = centerY2 + 2
 		endif
 	endif
-	if playerY > gheight / 2 then
+	if playerY > gheight / 2 - 4 then
 		if centerY > ( gheight / 2 ) - ( gheight / 20 ) then
 		centerY = centerY - 4
 		centerY2 = centerY2 - 2
@@ -128,19 +130,26 @@ cycle
 		endif
 		if frames > maxfps then
 			if xres < maxxres then
-				if yres < maxyres then
-					xres = xres + 10
-					yres = yres + 10
-					setmode( xres, yres )
-					fullscreen = true
-					centerX = gwidth / 2
-					centerY = gheight / 2
-					centerX2 = centerX
-					centerY2 = centerY
-					starsCenterX = centerX
-					starsCenterY = centerY
-					radius = gheight / 2 - 50
-					radius2 = gheight / 8
+				xres = xres + 10
+			endif
+			if yres < maxyres then
+				yres = yres + 10
+			endif
+			if isMaxResolution = false then
+				setmode( xres, yres )
+				fullscreen = true
+				centerX = gwidth / 2
+				centerY = gheight / 2
+				centerX2 = centerX
+				centerY2 = centerY
+				starsCenterX = centerX
+				starsCenterY = centerY
+				radius = gheight / 2 - 50
+				radius2 = gheight / 8
+				if xres = maxxres then
+					if yres = maxyres then
+						isMaxResolution = true
+					endif
 				endif
 			endif
 		endif
