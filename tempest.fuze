@@ -11,15 +11,6 @@ setspritetrans( player, 255, 0, 255 )
 setspriteorigin( player, getspritew( player ) / 2, getspriteh( player ) / 2 )
 playerAngle = 0
 frames = 0
-dim music( 7 )
-music( 0 ) = loadmusic( "tempest1.mod" )
-music( 1 ) = loadmusic( "tempest2.mod" )
-music( 2 ) = loadmusic( "tempest3.mod" )
-music( 3 ) = loadmusic( "tempest4.mod" )
-music( 4 ) = loadmusic( "tempest_bonus_1.mod" )
-music( 5 ) = loadmusic( "tempest_bonus_2.mod" )
-music( 6 ) = loadmusic( "tempest_title.mod" )
-playmusic( music( rnd( 7 ) ), -1 )
 proc setup
 cycle
 	cls2
@@ -141,8 +132,6 @@ def proc setup
 	intro2 = radius2 / 10
 	playerX = 0
 	playerY = 0
-	stopmusic
-	playmusic( music( rnd( 7 ) ), -1 )
 	starNum = 0
 	while starNum < maxStars cycle
 		stars( starNum ) = rnd( 360 )
