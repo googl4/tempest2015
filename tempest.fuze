@@ -1,4 +1,4 @@
-setmode( 1280, 720 )
+setmode( 854, 480 )
 dim stars( 100 )
 dim starsSpeed( 100 )
 dim starsDist( 100 )
@@ -9,7 +9,7 @@ loadsprite( "ship.png", player, 0 )
 setspritetrans( player, 255, 0, 255 )
 setspriteorigin( player, getspritew( player ) / 2, getspriteh( player ) / 2 )
 playerAngle = 0
-oldTime = 0
+frames = 0
 dim music( 7 )
 music( 0 ) = loadmusic( "tempest1.mod" )
 music( 1 ) = loadmusic( "tempest2.mod" )
@@ -127,7 +127,14 @@ cycle
 		endif
 	endif
 	update
-	wait( 1 / 60 )
+	frames = frames + 1
+	if scankeyboard( scanq ) then
+		cls2
+		printat( 0, 0 )
+		print "Average fps: ";
+		print int( frames / ( time / 1000 ) )
+		end
+	endif
 repeat
 end
 
@@ -155,7 +162,7 @@ def proc setup
 	intro2 = radius2 / 10
 	playerX = 0
 	playerY = 0
-	maxLasers = 10000
+	maxLasers = 100
 	dim lasers( maxLasers )
 	dim lasersDist( maxLasers )
 	dim lasersActive( maxLasers )
@@ -227,7 +234,6 @@ def proc setup
 		intro = intro + ( radius / 25 )
 		intro2 = intro2 + ( radius2 / 25 )
 		update
-		wait( 1 / 60 )
 	repeat
 	x = 0
 	y = 0
