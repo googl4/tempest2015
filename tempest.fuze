@@ -1,5 +1,5 @@
-xres = 640
-yres = 480
+xres = 1280
+yres = 720
 maxxres = 1920
 maxyres = 1080
 minfps = 55
@@ -12,11 +12,6 @@ dim starsSpeed( maxStars )
 dim starsDist( maxStars )
 starX = 0
 starY = 0
-player = newsprite( 1 )
-loadsprite( "ship.png", player, 0 )
-setspritetrans( player, 255, 0, 255 )
-setspriteorigin( player, getspritew( player ) / 2, getspriteh( player ) / 2 )
-setspritesize( player, gheight / 5 )
 frames = 0
 oldTime = 0
 proc setup
@@ -81,8 +76,6 @@ cycle
 	repeat
 	playerX = ( ( ( radius * cos( playerAngle - ( gap / 2 ) ) ) + centerX ) + ( ( radius * cos( playerAngle + ( gap / 2 ) ) ) + centerX ) ) / 2
 	playerY = ( ( ( radius * sin( playerAngle - ( gap / 2 ) ) ) + centerY ) + ( ( radius * sin( playerAngle + ( gap / 2 ) ) ) + centerY ) ) / 2
-	plotsprite( player, playerX, playerY, 0 )
-	setspriteangle( player, -playerAngle -90 )
 	angle = 0
 	if moveCount > 0 then
 		moveCount = moveCount - 1
@@ -111,6 +104,17 @@ cycle
 			centerY2 = centerY2 - 2
 		endif
 	endif
+	colour = yellow
+	polystart
+		polyplot( ( 50 * cos( playerAngle + 90 ) ) - ( 50 * sin( playerAngle + 90 ) ) + playerX, ( 50 * sin( playerAngle + 90 ) ) + ( 50 * cos( playerAngle + 90 ) ) + playerY )
+		polyplot( ( 50 * cos( playerAngle + 90 ) ) - ( 0 * sin( playerAngle + 90 ) ) + playerX, ( 50 * sin( playerAngle + 90 ) ) + ( 0 * cos( playerAngle + 90 ) ) + playerY )
+		polyplot( ( 0 * cos( playerAngle + 90 ) ) - ( -20 * sin( playerAngle + 90 ) ) + playerX, ( 0 * sin( playerAngle + 90 ) ) + ( -20 * cos( playerAngle + 90 ) ) + playerY )
+		polyplot( ( -50 * cos( playerAngle + 90 ) ) - ( 0 * sin( playerAngle + 90 ) ) + playerX, ( -50 * sin( playerAngle + 90 ) ) + ( 0 * cos( playerAngle + 90 ) ) + playerY )
+		polyplot( ( -50 * cos( playerAngle + 90 ) ) - ( 50 * sin( playerAngle + 90 ) ) + playerX, ( -50 * sin( playerAngle + 90 ) ) + ( 50 * cos( playerAngle + 90 ) ) + playerY )
+		polyplot( ( -70 * cos( playerAngle + 90 ) ) - ( 0 * sin( playerAngle + 90 ) ) + playerX, ( -70 * sin( playerAngle + 90 ) ) + ( 0 * cos( playerAngle + 90 ) ) + playerY )
+		polyplot( ( 0 * cos( playerAngle + 90 ) ) - ( -40 * sin( playerAngle + 90 ) ) + playerX, ( 0 * sin( playerAngle + 90 ) ) + ( -40 * cos( playerAngle + 90 ) ) + playerY )
+		polyplot( ( 70 * cos( playerAngle + 90 ) ) - ( 0 * sin( playerAngle + 90 ) ) + playerX, ( 70 * sin( playerAngle + 90 ) ) + ( 0 * cos( playerAngle + 90 ) ) + playerY )
+	polyend
 	update
 	frames = frames + 1
 	if time - 1000 > oldTime then
@@ -126,7 +130,6 @@ cycle
 			starsCenterY = centerY
 			radius = gheight / 2 - 50
 			radius2 = gheight / 8
-			setspritesize( player, gheight / 5 )
 		endif
 		if frames > maxfps then
 			if yres < maxyres then
@@ -151,7 +154,6 @@ cycle
 				starsCenterY = centerY
 				radius = gheight / 2 - 50
 				radius2 = gheight / 8
-				setspritesize( player, gheight / 5 )
 				if xres = maxxres then
 					if yres = maxyres then
 						isMaxResolution = true
@@ -275,7 +277,6 @@ def proc setup
 				starsCenterY = centerY
 				radius = gheight / 2 - 50
 				radius2 = gheight / 8
-				setspritesize( player, gheight / 5 )
 			endif
 			if frames > maxfps then
 				if yres < maxyres then
@@ -300,7 +301,6 @@ def proc setup
 					starsCenterY = centerY
 					radius = gheight / 2 - 50
 					radius2 = gheight / 8
-					setspritesize( player, gheight / 5 )
 					if xres = maxxres then
 						if yres = maxyres then
 							isMaxResolution = true
