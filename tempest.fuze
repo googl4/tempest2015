@@ -16,6 +16,7 @@ player = newsprite( 1 )
 loadsprite( "ship.png", player, 0 )
 setspritetrans( player, 255, 0, 255 )
 setspriteorigin( player, getspritew( player ) / 2, getspriteh( player ) / 2 )
+setspritesize( player, gwidth / 5 )
 frames = 0
 oldTime = 0
 proc setup
@@ -125,6 +126,7 @@ cycle
 			starsCenterY = centerY
 			radius = gheight / 2 - 50
 			radius2 = gheight / 8
+			setspritesize( player, gwidth / 5 )
 		endif
 		if frames > maxfps then
 			if xres < maxxres then
@@ -149,6 +151,7 @@ cycle
 				starsCenterY = centerY
 				radius = gheight / 2 - 50
 				radius2 = gheight / 8
+				setspritesize( player, gwidth / 5 )
 				if xres = maxxres then
 					if yres = maxyres then
 						isMaxResolution = true
@@ -272,6 +275,7 @@ def proc setup
 				starsCenterY = centerY
 				radius = gheight / 2 - 50
 				radius2 = gheight / 8
+				setspritesize( player, gwidth / 5 )
 			endif
 			if frames > maxfps then
 				if xres < maxxres then
@@ -296,6 +300,7 @@ def proc setup
 					starsCenterY = centerY
 					radius = gheight / 2 - 50
 					radius2 = gheight / 8
+					setspritesize( player, gwidth / 5 )
 					if xres = maxxres then
 						if yres = maxyres then
 							isMaxResolution = true
