@@ -1,4 +1,4 @@
-setmode( 854, 480 )
+setmode( 640, 480 )
 dim stars( 100 )
 dim starsSpeed( 100 )
 dim starsDist( 100 )
@@ -30,14 +30,6 @@ cycle
 	endif
 	if scankeyboard( scanr ) then
 		proc setup
-	endif
-	if scankeyboard( scanspace ) then
-		if numLasers < maxLasers then
-			lasers( numLasers ) = playerAngle
-			lasersDist( numLasers ) = radius
-			lasersActive( numLasers ) = true
-			numLasers = numLasers + 1
-		endif
 	endif
 	colour = white
 	while starNum < 100 cycle
@@ -80,20 +72,6 @@ cycle
 		oldX2 = x2
 		oldY2 = y2
 		angle = angle + gap
-	repeat
-	colour = aqua
-	for laser = 0 to maxLasers cycle
-		if lasersActive( laser ) = true then
-			if lasersDist( laser ) > radius2 then
-				circle( ( lasersDist( laser ) * cos( lasers( laser ) ) ) + ( ( centerX + centerX2 ) / 2 ), ( lasersDist( laser ) * sin( lasers( laser ) ) ) + ( ( centerY + centerY2 ) / 2 ), 10, 1 )
-				lasersDist( laser ) = lasersDist( laser ) - 5
-			endif
-			if lasersDist( laser ) = radius2 then
-				numLasers = numLasers - 1
-				lasersDist( laser ) = radius2 - 1
-				lasersActive( laser ) = false
-			endif
-		endif
 	repeat
 	playerX = radius * cos( playerAngle )
 	playerX = centerX + playerX
@@ -162,18 +140,12 @@ def proc setup
 	intro2 = radius2 / 10
 	playerX = 0
 	playerY = 0
-	maxLasers = 100
-	dim lasers( maxLasers )
-	dim lasersDist( maxLasers )
-	dim lasersActive( maxLasers )
-	numLasers = 0
-	laser = 0
 	stopmusic
 	playmusic( music( rnd( 7 ) ), -1 )
 	starNum = 0
 	while starNum < 100 cycle
 		stars( starNum ) = rnd( 360 )
-		starsSpeed( starNum ) = rnd( 5 ) + 5
+		starsSpeed( starNum ) = rnd( 4 ) + 1
 		starsDist( starNum ) = rnd( gheight )
 		starNum = starNum + 1
 	repeat
