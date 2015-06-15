@@ -6,7 +6,6 @@ minfps = 55
 maxfps = 65
 isMaxResolution = false
 setmode( xres, yres )
-fullscreen = true
 maxStars = 100
 dim stars( maxStars )
 dim starsSpeed( maxStars )
@@ -115,10 +114,9 @@ cycle
 	frames = frames + 1
 	if time - 1000 > oldTime then
 		if frames < minfps then
-			xres = xres - 10
-			yres = yres - 10
+			xres = xres - ( 10 * ( minfps - frames ) )
+			yres = yres - ( 10 * ( minfps - frames ) ) * 0.75
 			setmode( xres, yres )
-			fullscreen = true
 			centerX = gwidth / 2
 			centerY = gheight / 2
 			centerX2 = centerX
@@ -130,14 +128,13 @@ cycle
 		endif
 		if frames > maxfps then
 			if xres < maxxres then
-				xres = xres + 10
+				xres = xres + ( 10 * ( frames - maxfps ) )
 			endif
 			if yres < maxyres then
-				yres = yres + 10
+				yres = yres + ( 10 * ( frames - maxfps ) ) * 0.75
 			endif
 			if isMaxResolution = false then
 				setmode( xres, yres )
-				fullscreen = true
 				centerX = gwidth / 2
 				centerY = gheight / 2
 				centerX2 = centerX
@@ -184,7 +181,7 @@ def proc setup
 	playerX = 0
 	playerY = 0
 	playerAngle = gap / 2
-	moveDelay = int( ( 22 - vertices ) / 2 )
+	moveDelay = int( ( 25 - vertices ) / 2 )
 	moveCount = 0
 	starNum = 0
 	while starNum < maxStars cycle
@@ -253,10 +250,9 @@ def proc setup
 		frames = frames + 1
 		if time - 1000 > oldTime then
 			if frames < minfps then
-				xres = xres - 10
-				yres = yres - 10
+				xres = xres - ( 10 * ( minfps - frames ) )
+				yres = yres - ( 10 * ( minfps - frames ) ) * 0.75
 				setmode( xres, yres )
-				fullscreen = true
 				centerX = gwidth / 2
 				centerY = gheight / 2
 				centerX2 = centerX
@@ -268,19 +264,25 @@ def proc setup
 			endif
 			if frames > maxfps then
 				if xres < maxxres then
-					if yres < maxyres then
-						xres = xres + 10
-						yres = yres + 10
-						setmode( xres, yres )
-						fullscreen = true
-						centerX = gwidth / 2
-						centerY = gheight / 2
-						centerX2 = centerX
-						centerY2 = centerY
-						starsCenterX = centerX
-						starsCenterY = centerY
-						radius = gheight / 2 - 50
-						radius2 = gheight / 8
+					xres = xres + ( 10 * ( frames - maxfps ) )
+				endif
+				if yres < maxyres then
+					yres = yres + ( 10 * ( frames - maxfps ) ) * 0.75
+				endif
+				if isMaxResolution = false then
+					setmode( xres, yres )
+					centerX = gwidth / 2
+					centerY = gheight / 2
+					centerX2 = centerX
+					centerY2 = centerY
+					starsCenterX = centerX
+					starsCenterY = centerY
+					radius = gheight / 2 - 50
+					radius2 = gheight / 8
+					if xres = maxxres then
+						if yres = maxyres then
+							isMaxResolution = true
+						endif
 					endif
 				endif
 			endif
