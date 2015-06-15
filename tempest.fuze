@@ -1,7 +1,8 @@
 setmode( 640, 480 )
-dim stars( 100 )
-dim starsSpeed( 100 )
-dim starsDist( 100 )
+maxStars = 20
+dim stars( maxStars )
+dim starsSpeed( maxStars )
+dim starsDist( maxStars )
 starX = 0
 starY = 0
 player = newsprite( 1 )
@@ -32,7 +33,7 @@ cycle
 		proc setup
 	endif
 	colour = white
-	while starNum < 100 cycle
+	while starNum < maxStars cycle
 		starX = starsDist( starNum ) * cos( stars( starNum ) )
 		starX = starsCenterX + starX
 		starY = starsDist( starNum ) * sin( stars( starNum ) )
@@ -143,7 +144,7 @@ def proc setup
 	stopmusic
 	playmusic( music( rnd( 7 ) ), -1 )
 	starNum = 0
-	while starNum < 100 cycle
+	while starNum < maxStars cycle
 		stars( starNum ) = rnd( 360 )
 		starsSpeed( starNum ) = rnd( 4 ) + 1
 		starsDist( starNum ) = rnd( gheight )
@@ -161,7 +162,7 @@ def proc setup
 		oldY2 = intro2 * sin( angle - gap )
 		oldY2 = centerY + oldY2
 		colour = white
-		while starNum < 100 cycle
+		while starNum < maxStars cycle
 			starX = starsDist( starNum ) * cos( stars( starNum ) )
 			starX = starsCenterX + starX
 			starY = starsDist( starNum ) * sin( stars( starNum ) )
