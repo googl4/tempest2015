@@ -86,25 +86,25 @@ cycle
 	if moveCount > 0 then
 		moveCount = moveCount - 1
 	endif
-	if playerX < gwidth / 2 + 4 then
+	if playerX + 4 < gwidth / 2 then
 		if centerX < ( gwidth / 2 ) + ( gwidth / 20 ) then
 			centerX = centerX + 4
 			centerX2 = centerX2 + 2
 		endif
 	endif
-	if playerX > gwidth / 2 - 4 then
+	if playerX - 4 > gwidth / 2 then
 		if centerX > ( gwidth / 2 ) - ( gwidth / 20 ) then
 			centerX = centerX - 4
 			centerX2 = centerX2 - 2
 		endif
 	endif
-	if playerY < gheight / 2 + 4 then
+	if playerY + 4 < gheight / 2 then
 		if centerY < ( gheight / 2 ) + ( gheight / 20 ) then
 			centerY = centerY + 4
 			centerY2 = centerY2 + 2
 		endif
 	endif
-	if playerY > gheight / 2 - 4 then
+	if playerY - 4 > gheight / 2 then
 		if centerY > ( gheight / 2 ) - ( gheight / 20 ) then
 			centerY = centerY - 4
 			centerY2 = centerY2 - 2
