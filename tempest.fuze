@@ -1,5 +1,5 @@
 setmode( 640, 480 )
-maxStars = 20
+maxStars = 50
 dim stars( maxStars )
 dim starsSpeed( maxStars )
 dim starsDist( maxStars )
@@ -9,16 +9,21 @@ player = newsprite( 1 )
 loadsprite( "ship.png", player, 0 )
 setspritetrans( player, 255, 0, 255 )
 setspriteorigin( player, getspritew( player ) / 2, getspriteh( player ) / 2 )
-playerAngle = 0
 frames = 0
 proc setup
 cycle
 	cls2
 	if scankeyboard( scanright ) then
-		playerAngle = playerAngle + 10
+		if moveCount = 0 then
+			playerAngle = playerAngle + gap
+			moveCount = moveDelay
+		endif
 	endif
 	if scankeyboard( scanleft ) then
-		playerAngle = playerAngle - 10
+		if moveCount = 0 then
+			playerAngle = playerAngle - gap
+			moveCount = moveDelay
+		endif
 	endif
 	if scankeyboard( scanr ) then
 		proc setup
@@ -65,35 +70,36 @@ cycle
 		oldY2 = y2
 		angle = angle + gap
 	repeat
-	playerX = radius * cos( playerAngle )
-	playerX = centerX + playerX
-	playerY = radius * sin( playerAngle )
-	playerY = centerY + playerY
+	playerX = ( ( ( radius * cos( playerAngle - ( gap / 2 ) ) ) + centerX ) + ( ( radius * cos( playerAngle + ( gap / 2 ) ) ) + centerX ) ) / 2
+	playerY = ( ( ( radius * sin( playerAngle - ( gap / 2 ) ) ) + centerY ) + ( ( radius * sin( playerAngle + ( gap / 2 ) ) ) + centerY ) ) / 2
 	plotsprite( player, playerX, playerY, 0 )
 	setspriteangle( player, -playerAngle -90 )
 	angle = 0
+	if moveCount > 0 then
+		moveCount = moveCount - 1
+	endif
 	if playerX < gwidth / 2 then
 		if centerX < ( gwidth / 2 ) + ( gwidth / 20 ) then
-			centerX = centerX + 2
-			centerX2 = centerX2 + 1
+			centerX = centerX + 4
+			centerX2 = centerX2 + 2
 		endif
 	endif
 	if playerX > gwidth / 2 then
 		if centerX > ( gwidth / 2 ) - ( gwidth / 20 ) then
-		centerX = centerX - 2
-		centerX2 = centerX2 - 1
+		centerX = centerX - 4
+		centerX2 = centerX2 - 2
 		endif
 	endif
 	if playerY < gheight / 2 then
 		if centerY < ( gheight / 2 ) + ( gheight / 20 ) then
-			centerY = centerY + 2
-			centerY2 = centerY2 + 1
+			centerY = centerY + 4
+			centerY2 = centerY2 + 2
 		endif
 	endif
 	if playerY > gheight / 2 then
-		if centerY > ( gheight / 2 ) - ( gheight / 25 ) then
-		centerY = centerY - 2
-		centerY2 = centerY2 - 1
+		if centerY > ( gheight / 2 ) - ( gheight / 20 ) then
+		centerY = centerY - 4
+		centerY2 = centerY2 - 2
 		endif
 	endif
 	update
@@ -132,6 +138,9 @@ def proc setup
 	intro2 = radius2 / 10
 	playerX = 0
 	playerY = 0
+	playerAngle = gap / 2
+	moveDelay = int( ( 22 - vertices ) / 2 )
+	moveCount = 0
 	starNum = 0
 	while starNum < maxStars cycle
 		stars( starNum ) = rnd( 360 )
