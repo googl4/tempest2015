@@ -94,8 +94,8 @@ cycle
 	endif
 	if playerX > gwidth / 2 - 4 then
 		if centerX > ( gwidth / 2 ) - ( gwidth / 20 ) then
-		centerX = centerX - 4
-		centerX2 = centerX2 - 2
+			centerX = centerX - 4
+			centerX2 = centerX2 - 2
 		endif
 	endif
 	if playerY < gheight / 2 + 4 then
@@ -106,8 +106,8 @@ cycle
 	endif
 	if playerY > gheight / 2 - 4 then
 		if centerY > ( gheight / 2 ) - ( gheight / 20 ) then
-		centerY = centerY - 4
-		centerY2 = centerY2 - 2
+			centerY = centerY - 4
+			centerY2 = centerY2 - 2
 		endif
 	endif
 	update
@@ -129,9 +129,15 @@ cycle
 		if frames > maxfps then
 			if xres < maxxres then
 				xres = xres + ( 10 * ( frames - maxfps ) )
+				if xres > maxxres then
+					xres = maxxres
+				endif
 			endif
 			if yres < maxyres then
 				yres = yres + ( 10 * ( frames - maxfps ) ) * 0.75
+				if yres > maxyres then
+					yres = maxyres
+				endif
 			endif
 			if isMaxResolution = false then
 				setmode( xres, yres )
@@ -146,7 +152,12 @@ cycle
 				if xres = maxxres then
 					if yres = maxyres then
 						isMaxResolution = true
+						fullscreen = true
+					else
+						fullscreen = false
 					endif
+				else
+					fullscreen = false
 				endif
 			endif
 		endif
@@ -265,9 +276,15 @@ def proc setup
 			if frames > maxfps then
 				if xres < maxxres then
 					xres = xres + ( 10 * ( frames - maxfps ) )
+					if xres > maxxres then
+						xres = maxxres
+					endif
 				endif
 				if yres < maxyres then
 					yres = yres + ( 10 * ( frames - maxfps ) ) * 0.75
+					if yres  > maxyres then
+						yres = maxyres
+					endif
 				endif
 				if isMaxResolution = false then
 					setmode( xres, yres )
@@ -282,7 +299,12 @@ def proc setup
 					if xres = maxxres then
 						if yres = maxyres then
 							isMaxResolution = true
+							fullscreen = true
+						else
+							fullscreen = false
 						endif
+					else
+						fullscreen = false
 					endif
 				endif
 			endif
