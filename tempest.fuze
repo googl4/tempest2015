@@ -105,15 +105,17 @@ cycle
 		endif
 	endif
 	colour = yellow
+	c = cos( playerAngle + 90 )
+	s = sin( playerAngle + 90 )
 	polystart
-		polyplot( ( 50 * cos( playerAngle + 90 ) ) - ( 50 * sin( playerAngle + 90 ) ) + playerX, ( 50 * sin( playerAngle + 90 ) ) + ( 50 * cos( playerAngle + 90 ) ) + playerY )
-		polyplot( ( 50 * cos( playerAngle + 90 ) ) - ( 0 * sin( playerAngle + 90 ) ) + playerX, ( 50 * sin( playerAngle + 90 ) ) + ( 0 * cos( playerAngle + 90 ) ) + playerY )
-		polyplot( ( 0 * cos( playerAngle + 90 ) ) - ( -20 * sin( playerAngle + 90 ) ) + playerX, ( 0 * sin( playerAngle + 90 ) ) + ( -20 * cos( playerAngle + 90 ) ) + playerY )
-		polyplot( ( -50 * cos( playerAngle + 90 ) ) - ( 0 * sin( playerAngle + 90 ) ) + playerX, ( -50 * sin( playerAngle + 90 ) ) + ( 0 * cos( playerAngle + 90 ) ) + playerY )
-		polyplot( ( -50 * cos( playerAngle + 90 ) ) - ( 50 * sin( playerAngle + 90 ) ) + playerX, ( -50 * sin( playerAngle + 90 ) ) + ( 50 * cos( playerAngle + 90 ) ) + playerY )
-		polyplot( ( -70 * cos( playerAngle + 90 ) ) - ( 0 * sin( playerAngle + 90 ) ) + playerX, ( -70 * sin( playerAngle + 90 ) ) + ( 0 * cos( playerAngle + 90 ) ) + playerY )
-		polyplot( ( 0 * cos( playerAngle + 90 ) ) - ( -40 * sin( playerAngle + 90 ) ) + playerX, ( 0 * sin( playerAngle + 90 ) ) + ( -40 * cos( playerAngle + 90 ) ) + playerY )
-		polyplot( ( 70 * cos( playerAngle + 90 ) ) - ( 0 * sin( playerAngle + 90 ) ) + playerX, ( 70 * sin( playerAngle + 90 ) ) + ( 0 * cos( playerAngle + 90 ) ) + playerY )
+		polyplot( ( 50 * c ) - ( 50 * s ) + playerX, ( 50 * s ) + ( 50 * c ) + playerY )
+		polyplot( ( 50 * c ) - ( 0 * s ) + playerX, ( 50 * s ) + ( 0 * c ) + playerY )
+		polyplot( ( 0 * c ) - ( -20 * s ) + playerX, ( 0 * s ) + ( -20 * c ) + playerY )
+		polyplot( ( -50 * c ) - ( 0 * s ) + playerX, ( -50 * s ) + ( 0 * c ) + playerY )
+		polyplot( ( -50 * c ) - ( 50 * s ) + playerX, ( -50 * s ) + ( 50 * c ) + playerY )
+		polyplot( ( -70 * c ) - ( 0 * s ) + playerX, ( -70 * s ) + ( 0 * c ) + playerY )
+		polyplot( ( 0 * c ) - ( -40 * s ) + playerX, ( 0 * s ) + ( -40 * c ) + playerY )
+		polyplot( ( 70 * c ) - ( 0 * s ) + playerX, ( 70 * s ) + ( 0 * c ) + playerY )
 	polyend
 	update
 	frames = frames + 1
