@@ -1,5 +1,5 @@
 setmode( 640, 480 )
-maxStars = 50
+maxStars = 100
 dim stars( maxStars )
 dim starsSpeed( maxStars )
 dim starsDist( maxStars )
@@ -144,7 +144,7 @@ def proc setup
 	starNum = 0
 	while starNum < maxStars cycle
 		stars( starNum ) = rnd( 360 )
-		starsSpeed( starNum ) = rnd( 4 ) + 1
+		starsSpeed( starNum ) = rnd( 7 ) + 1
 		starsDist( starNum ) = rnd( gheight )
 		starNum = starNum + 1
 	repeat
