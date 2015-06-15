@@ -1,4 +1,10 @@
-setmode( 640, 480 )
+xres = 640
+yres = 480
+maxxres = 1920
+maxyres = 1080
+minfps = 55
+maxfps = 65
+fullscreen = true
 maxStars = 100
 dim stars( maxStars )
 dim starsSpeed( maxStars )
@@ -10,6 +16,7 @@ loadsprite( "ship.png", player, 0 )
 setspritetrans( player, 255, 0, 255 )
 setspriteorigin( player, getspritew( player ) / 2, getspriteh( player ) / 2 )
 frames = 0
+oldTime = 0
 proc setup
 cycle
 	cls2
@@ -104,12 +111,41 @@ cycle
 	endif
 	update
 	frames = frames + 1
-	if scankeyboard( scanq ) then
-		cls2
-		printat( 0, 0 )
-		print "Average fps: ";
-		print int( frames / ( time / 1000 ) )
-		end
+	if time - 1000 > oldTime then
+		if frames < minfps then
+			xres = xres - 10
+			yres = yres - 10
+			setmode( xres, yres )
+			fullscreen = true
+			centerX = gwidth / 2
+			centerY = gheight / 2
+			centerX2 = centerX
+			centerY2 = centerY
+			starsCenterX = centerX
+			starsCenterY = centerY
+			radius = gheight / 2 - 50
+			radius2 = gheight / 8
+		endif
+		if frames > maxfps then
+			if xres < maxxres then
+				if yres < maxyres then
+					xres = xres + 10
+					yres = yres + 10
+					setmode( xres, yres )
+					fullscreen = true
+					centerX = gwidth / 2
+					centerY = gheight / 2
+					centerX2 = centerX
+					centerY2 = centerY
+					starsCenterX = centerX
+					starsCenterY = centerY
+					radius = gheight / 2 - 50
+					radius2 = gheight / 8
+				endif
+			endif
+		endif
+		frames = 0
+		oldTime = time
 	endif
 repeat
 end
@@ -144,7 +180,7 @@ def proc setup
 	starNum = 0
 	while starNum < maxStars cycle
 		stars( starNum ) = rnd( 360 )
-		starsSpeed( starNum ) = rnd( 7 ) + 1
+		starsSpeed( starNum ) = rnd( 4 ) + 1
 		starsDist( starNum ) = rnd( gheight )
 		starNum = starNum + 1
 	repeat
@@ -205,6 +241,43 @@ def proc setup
 		intro = intro + ( radius / 25 )
 		intro2 = intro2 + ( radius2 / 25 )
 		update
+		frames = frames + 1
+		if time - 1000 > oldTime then
+			if frames < minfps then
+				xres = xres - 10
+				yres = yres - 10
+				setmode( xres, yres )
+				fullscreen = true
+				centerX = gwidth / 2
+				centerY = gheight / 2
+				centerX2 = centerX
+				centerY2 = centerY
+				starsCenterX = centerX
+				starsCenterY = centerY
+				radius = gheight / 2 - 50
+				radius2 = gheight / 8
+			endif
+			if frames > maxfps then
+				if xres < maxxres then
+					if yres < maxyres then
+						xres = xres + 10
+						yres = yres + 10
+						setmode( xres, yres )
+						fullscreen = true
+						centerX = gwidth / 2
+						centerY = gheight / 2
+						centerX2 = centerX
+						centerY2 = centerY
+						starsCenterX = centerX
+						starsCenterY = centerY
+						radius = gheight / 2 - 50
+						radius2 = gheight / 8
+					endif
+				endif
+			endif
+			frames = 0
+			oldTime = time
+		endif
 	repeat
 	x = 0
 	y = 0
