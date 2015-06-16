@@ -1,5 +1,5 @@
-xres = 1280
-yres = 720
+xres = 640
+yres = 480
 maxxres = 1920
 maxyres = 1080
 minfps = 55
@@ -107,15 +107,16 @@ cycle
 	colour = yellow
 	c = cos( playerAngle + 90 )
 	s = sin( playerAngle + 90 )
+	u = gheight / 80
 	polystart
-		polyplot( ( 50 * c ) - ( 50 * s ) + playerX, ( 50 * s ) + ( 50 * c ) + playerY )
-		polyplot( ( 50 * c ) - ( 0 * s ) + playerX, ( 50 * s ) + ( 0 * c ) + playerY )
-		polyplot( ( 0 * c ) - ( -20 * s ) + playerX, ( 0 * s ) + ( -20 * c ) + playerY )
-		polyplot( ( -50 * c ) - ( 0 * s ) + playerX, ( -50 * s ) + ( 0 * c ) + playerY )
-		polyplot( ( -50 * c ) - ( 50 * s ) + playerX, ( -50 * s ) + ( 50 * c ) + playerY )
-		polyplot( ( -70 * c ) - ( 0 * s ) + playerX, ( -70 * s ) + ( 0 * c ) + playerY )
-		polyplot( ( 0 * c ) - ( -40 * s ) + playerX, ( 0 * s ) + ( -40 * c ) + playerY )
-		polyplot( ( 70 * c ) - ( 0 * s ) + playerX, ( 70 * s ) + ( 0 * c ) + playerY )
+		polyplot( ( u*5 * c ) - ( u*5 * s ) + playerX, ( u*5 * s ) + ( u*5 * c ) + playerY )
+		polyplot( ( u*5 * c ) - ( 0 * s ) + playerX, ( u*5 * s ) + ( 0 * c ) + playerY )
+		polyplot( ( 0 * c ) - ( u*-2 * s ) + playerX, ( 0 * s ) + ( u*-2 * c ) + playerY )
+		polyplot( ( u*-5 * c ) - ( 0 * s ) + playerX, ( u*-5 * s ) + ( 0 * c ) + playerY )
+		polyplot( ( u*-5 * c ) - ( u*5 * s ) + playerX, ( u*-5 * s ) + ( u*5 * c ) + playerY )
+		polyplot( ( u*-7 * c ) - ( 0 * s ) + playerX, ( u*-7 * s ) + ( 0 * c ) + playerY )
+		polyplot( ( 0 * c ) - ( u*-4 * s ) + playerX, ( 0 * s ) + ( u*-4 * c ) + playerY )
+		polyplot( ( u*7 * c ) - ( 0 * s ) + playerX, ( u*7 * s ) + ( 0 * c ) + playerY )
 	polyend
 	update
 	frames = frames + 1
