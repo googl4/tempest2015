@@ -5,6 +5,7 @@ maxyres = 1080
 minfps = 55
 maxfps = 65
 isMaxResolution = false
+totalFrames = 0
 setmode( xres, yres )
 maxStars = 100
 dim stars( maxStars )
@@ -172,6 +173,14 @@ cycle
 		frames = 0
 		oldTime = time
 	endif
+	totalFrames = totalFrames + 1
+	if scankeyboard( scanq ) then
+		printat( 0, 0 )
+		fontscale( 2, 2 )
+		print "Average fps: ";
+		print int( totalFrames / ( time / 1000 ) )
+		break
+	endif
 repeat
 end
 
@@ -319,6 +328,7 @@ def proc setup
 			frames = 0
 			oldTime = time
 		endif
+		totalFrames = totalFrames + 1
 	repeat
 	x = 0
 	y = 0
