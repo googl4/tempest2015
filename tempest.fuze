@@ -13,8 +13,22 @@ dim starsSpeed( maxStars )
 dim starsDist( maxStars )
 starX = 0
 starY = 0
+laserX = 0
+laserY = 0
+laserX2 = 0
+laserY2 = 0
+laserX3 = 0
+laserY3 = 0
+laserX4 = 0
+laserY4 = 0
 frames = 0
 oldTime = 0
+maxLasers = 100
+totalFrames = 0
+laserReload = 20
+laserCount = 0
+dim laserDist( maxLasers )
+dim laserAngle( maxLasers )
 proc setup
 cycle
 	cls2
@@ -32,6 +46,31 @@ cycle
 	endif
 	if scankeyboard( scanr ) then
 		proc setup
+	endif
+	if scankeyboard( scanq ) then
+		cls2
+		printat( 0, 0 )
+		print "Average fps: ";
+		print int( totalFrames / ( time / 1000 ) )
+		break
+	endif
+	if scankeyboard( scanspace ) then
+		if laserCount = 0 then
+			if numLasers < maxLasers then
+				for i = 0 to maxLasers cycle
+					if laserDist( i ) = radius2 - 1 then
+						laserDist( i ) = radius
+						laserAngle( i ) = playerAngle
+						numLasers = numLasers + 1
+						laserCount = laserReload
+						break
+					endif
+				repeat
+			endif
+		endif
+	endif
+	if laserCount > 0 then
+		laserCount = laserCount - 1
 	endif
 	colour = white
 	while starNum < maxStars cycle
@@ -105,6 +144,29 @@ cycle
 			centerY2 = centerY2 - 2
 		endif
 	endif
+	colour = aqua
+	for i = 0 to maxLasers cycle
+		if laserDist( i ) > radius2 then
+			laserDist( i ) = laserDist( i ) - 1
+			laserX = ( ( laserDist( i ) - 10 ) * cos( laserAngle( i ) ) ) + ( ( centerX + centerX2 ) / 2 )
+			laserY = ( ( laserDist( i ) - 10 ) * sin( laserAngle( i ) ) ) + ( ( centerY + centerY2 ) / 2 )
+			laserX2 = ( ( laserDist( i ) ) * cos( laserAngle( i ) + 5 ) ) + ( ( centerX + centerX2 ) / 2 )
+			laserY2 = ( ( laserDist( i ) ) * sin( laserAngle( i ) + 5 ) ) + ( ( centerY + centerY2 ) / 2 )
+			laserX3 = ( ( laserDist( i ) + 10 ) * cos( laserAngle( i ) ) ) + ( ( centerX + centerX2 ) / 2 )
+			laserY3 = ( ( laserDist( i ) + 10 ) * sin( laserAngle( i ) ) ) + ( ( centerY + centerY2 ) / 2 )
+			laserX4 = ( ( laserDist( i ) ) * cos( laserAngle( i ) - 5 ) ) + ( ( centerX + centerX2 ) / 2 )
+			laserY4 = ( ( laserDist( i ) ) * sin( laserAngle( i ) - 5 ) ) + ( ( centerY + centerY2 ) / 2 )
+			line( laserX, laserY, laserX2, laserY2 )
+			line( laserX2, laserY2, laserX3, laserY3 )
+			line( laserX3, laserY3, laserX4, laserY4 )
+			line( laserX4, laserY4, laserX, laserY )
+			laserDist( i ) = laserDist( i ) - 1
+		endif
+		if laserDist( i ) < radius2 then
+			laserDist( i ) = radius2 - 1
+			numLasers = numLasers - 1
+		endif
+	repeat
 	colour = yellow
 	c = cos( playerAngle + 90 )
 	s = sin( playerAngle + 90 )
@@ -202,7 +264,7 @@ def proc setup
 	angle = 0
 	radius = gheight / 2 - 50
 	radius2 = gheight / 8
-	vertices = rnd( 17 ) + 3
+	vertices = rnd( 14 ) + 6
 	gap = 360 / vertices
 	intro = radius / 10
 	intro2 = radius2 / 10
@@ -211,6 +273,11 @@ def proc setup
 	playerAngle = gap / 2
 	moveDelay = int( ( 25 - vertices ) / 2 )
 	moveCount = 0
+	numLasers = 0
+	for i = 0 to maxLasers cycle
+		laserDist( i ) = radius2 - 1
+		laserAngle( i ) = 0
+	repeat
 	starNum = 0
 	while starNum < maxStars cycle
 		stars( starNum ) = rnd( 360 )
