@@ -33,8 +33,8 @@ maxEnemies = 5
 numEnemies = 0
 enemyX = 0
 enemyY = 0
-enemyDelay = 120
-enemyCount = 0
+enemyDelay = 100
+enemyCount = enemyDelay
 dim enemyAngle( maxEnemies )
 dim enemyDist( maxEnemies )
 playerAngle = 0
@@ -62,9 +62,6 @@ cycle
 			playerAngle = playerAngle - gap
 			moveCount = moveDelay
 		endif
-	endif
-	if scankeyboard( scanr ) then
-		warp = true
 	endif
 	if scankeyboard( scanq ) then
 		cls2
@@ -221,6 +218,9 @@ cycle
 							score = score + 10
 							laserDist( i ) = radius2
 							numLasers = numLasers - 1
+							if enemyDelay > 20 then
+								enemyDelay = enemyDelay - 1
+							endif
 							break
 						endif
 					endif
@@ -233,7 +233,8 @@ cycle
 		repeat
 		colour = red
 		for i = 0 to maxEnemies cycle
-			if enemyDist( i ) < radius then
+			if enemyDist( i ) = radius then
+			else
 				enemyX = ( ( ( enemyDist( i ) * cos( enemyAngle( i ) - ( gap / 2 ) ) ) + ( ( centerX + centerX2 ) / 2 ) ) + ( ( enemyDist( i ) * cos( enemyAngle( i ) + ( gap / 2 ) ) ) + ( ( centerX + centerX ) / 2 ) ) ) / 2
 				enemyY = ( ( ( enemyDist( i ) * sin( enemyAngle( i ) - ( gap / 2 ) ) ) + ( ( centerY + centerY2 ) / 2 ) ) + ( ( enemyDist( i ) * sin( enemyAngle( i ) + ( gap / 2 ) ) ) + ( ( centerY + centerY2 ) / 2 ) ) ) / 2
 				c = cos( enemyAngle( i ) + 90 )
@@ -249,11 +250,32 @@ cycle
 					polyplot( ( u*-5 * c ) - ( u*-1.5 * s ) + enemyX, ( u*-5 * s ) + ( u*-1.5 * c ) + enemyY )
 					polyplot( ( u*-1 * c ) + enemyX, ( u*-1 * s ) + enemyY )
 				polyend
+			endif
+			if enemyDist( i ) < radius then
 				enemyDist( i ) = enemyDist( i ) + ( gheight / 600 )
 			endif
-			if enemyDist( i ) > radius then
-				enemyDist( i ) = radius
-				numEnemies = numEnemies - 1
+			endif
+			if enemyDist( i ) = radius + 1 then
+				if enemyAngle( i ) = playerAngle then
+					fontscale( 2, 2 )
+					printat( twidth / 2 - 5, theight / 2 )
+					print "Game Over!"
+					printat( twidth / 2 - 5, theight / 2 + 2 )
+					print "Score: ";
+					print score
+					wait( 2 )
+					end
+				endif
+				if enemyAngle( i ) > playerAngle then
+					enemyAngle( i ) = enemyAngle( i ) - gap
+				endif
+				if enemyAngle( i ) < playerAngle then
+					enemyAngle( i ) = enemyAngle( i ) + gap
+				endif
+			else
+				if enemyDist( i ) > radius then
+					enemyDist( i ) = radius + 1
+				endif
 			endif
 		repeat
 	endif
@@ -288,6 +310,7 @@ cycle
 			oldRadius2 = radius2
 			radius = gheight / 2 - 50
 			radius2 = gheight / 8
+			enemyCount = enemyDelay
 			for i = 0 to maxLasers cycle
 				if laserDist( i ) = oldRadius2 then
 					laserDist( i ) = radius2
@@ -296,6 +319,9 @@ cycle
 			for i = 0 to maxEnemies cycle
 				if enemyDist( i ) = oldRadius then
 					enemyDist( i ) = radius
+				endif
+				if enemyDist( i ) = oldRadius + 1 then
+					enemyDist( i ) = radius + 1
 				endif
 			repeat
 		endif
@@ -324,9 +350,18 @@ cycle
 				oldRadius2 = radius2
 				radius = gheight / 2 - 50
 				radius2 = gheight / 8
+				enemyCount = enemyDelay
 				for i = 0 to maxLasers cycle
 					if laserDist( i ) = oldRadius2 then
 						laserDist( i ) = radius2
+					endif
+				repeat
+				for i = 0 to maxEnemies cycle
+					if enemyDist( i ) = oldRadius then
+						enemyDist( i ) = radius
+					endif
+					if enemyDist( i ) = oldRadius + 1 then
+						enemyDist( i ) = radius + 1
 					endif
 				repeat
 				if xres = maxxres then
@@ -397,7 +432,7 @@ def proc setup
 	playerX = 0
 	playerY = 0
 	numEnemies = 0
-	moveDelay = int( ( 25 - vertices ) / 4 )
+	moveDelay = int( ( 25 - vertices ) / 3 )
 	moveCount = 0
 	numLasers = 0
 	for i = 0 to maxLasers cycle
