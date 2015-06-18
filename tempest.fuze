@@ -23,12 +23,27 @@ laserX4 = 0
 laserY4 = 0
 frames = 0
 oldTime = 0
-maxLasers = 100
+maxLasers = 5
 totalFrames = 0
 laserReload = 20
 laserCount = 0
 dim laserDist( maxLasers )
 dim laserAngle( maxLasers )
+maxEnemies = 5
+enemyX = 0
+enemyY = 0
+dim enemyAngle( maxEnemies )
+dim enemyAngle( maxEnemies )
+playerAngle = 0
+oldPlayerAngle = playerAngle
+oneTimeInit = true
+starNum = 0
+while starNum < maxStars cycle
+	stars( starNum ) = rnd( 360 )
+	starsSpeed( starNum ) = rnd( 4 ) + 1
+	starsDist( starNum ) = rnd( gheight )
+	starNum = starNum + 1
+repeat
 proc setup
 cycle
 	cls2
@@ -45,7 +60,7 @@ cycle
 		endif
 	endif
 	if scankeyboard( scanr ) then
-		proc setup
+		warp = true
 	endif
 	if scankeyboard( scanq ) then
 		cls2
@@ -59,7 +74,7 @@ cycle
 			if numLasers < maxLasers then
 				for i = 0 to maxLasers cycle
 					if laserDist( i ) = radius2 - 1 then
-						laserDist( i ) = radius
+						laserDist( i ) = sqrt( ( ( centerX - playerX ) * ( centerX - playerX ) ) + ( ( centerY - playerY ) * ( centerY - playerY ) ) )
 						laserAngle( i ) = playerAngle
 						numLasers = numLasers + 1
 						laserCount = laserReload
@@ -67,6 +82,13 @@ cycle
 					endif
 				repeat
 			endif
+		endif
+	endif
+	if warp = true then
+		radius = radius + ( gheight / 10 )
+		radius2 = radius2 + ( gheight / 20 )
+		if radius2 > gheight then
+			proc setup
 		endif
 	endif
 	if laserCount > 0 then
@@ -114,8 +136,10 @@ cycle
 		oldY2 = y2
 		angle = angle + gap
 	repeat
-	playerX = ( ( ( radius * cos( playerAngle - ( gap / 2 ) ) ) + centerX ) + ( ( radius * cos( playerAngle + ( gap / 2 ) ) ) + centerX ) ) / 2
-	playerY = ( ( ( radius * sin( playerAngle - ( gap / 2 ) ) ) + centerY ) + ( ( radius * sin( playerAngle + ( gap / 2 ) ) ) + centerY ) ) / 2
+	if warp = false then
+		playerX = ( ( ( radius * cos( playerAngle - ( gap / 2 ) ) ) + centerX ) + ( ( radius * cos( playerAngle + ( gap / 2 ) ) ) + centerX ) ) / 2
+		playerY = ( ( ( radius * sin( playerAngle - ( gap / 2 ) ) ) + centerY ) + ( ( radius * sin( playerAngle + ( gap / 2 ) ) ) + centerY ) ) / 2
+	endif
 	angle = 0
 	if moveCount > 0 then
 		moveCount = moveCount - 1
@@ -148,12 +172,12 @@ cycle
 	for i = 0 to maxLasers cycle
 		if laserDist( i ) > radius2 then
 			laserDist( i ) = laserDist( i ) - 1
-			laserX = ( ( laserDist( i ) - 10 ) * cos( laserAngle( i ) ) ) + ( ( centerX + centerX2 ) / 2 )
-			laserY = ( ( laserDist( i ) - 10 ) * sin( laserAngle( i ) ) ) + ( ( centerY + centerY2 ) / 2 )
+			laserX = ( ( laserDist( i ) * 0.9 ) * cos( laserAngle( i ) ) ) + ( ( centerX + centerX2 ) / 2 )
+			laserY = ( ( laserDist( i ) * 0.9 ) * sin( laserAngle( i ) ) ) + ( ( centerY + centerY2 ) / 2 )
 			laserX2 = ( ( laserDist( i ) ) * cos( laserAngle( i ) + 5 ) ) + ( ( centerX + centerX2 ) / 2 )
 			laserY2 = ( ( laserDist( i ) ) * sin( laserAngle( i ) + 5 ) ) + ( ( centerY + centerY2 ) / 2 )
-			laserX3 = ( ( laserDist( i ) + 10 ) * cos( laserAngle( i ) ) ) + ( ( centerX + centerX2 ) / 2 )
-			laserY3 = ( ( laserDist( i ) + 10 ) * sin( laserAngle( i ) ) ) + ( ( centerY + centerY2 ) / 2 )
+			laserX3 = ( ( laserDist( i ) * 1.1 ) * cos( laserAngle( i ) ) ) + ( ( centerX + centerX2 ) / 2 )
+			laserY3 = ( ( laserDist( i ) * 1.1 ) * sin( laserAngle( i ) ) ) + ( ( centerY + centerY2 ) / 2 )
 			laserX4 = ( ( laserDist( i ) ) * cos( laserAngle( i ) - 5 ) ) + ( ( centerX + centerX2 ) / 2 )
 			laserY4 = ( ( laserDist( i ) ) * sin( laserAngle( i ) - 5 ) ) + ( ( centerY + centerY2 ) / 2 )
 			line( laserX, laserY, laserX2, laserY2 )
@@ -247,12 +271,7 @@ repeat
 end
 
 def proc setup
-	centerX = gwidth / 2
-	centerY = gheight / 2
-	centerX2 = centerX
-	centerY2 = centerY
-	starsCenterX = centerX
-	starsCenterY = centerY
+	warp = false
 	x = 0
 	y = 0
 	x2 = 0
@@ -262,15 +281,36 @@ def proc setup
 	oldX2 = 0
 	oldY2 = 0
 	angle = 0
+	if oneTimeInit = false then
+		oldPlayerAngle = playerAngle
+		playerAngle = playerAngle - ( gap / 2 )
+		oldCenterX = centerX
+		oldCenterY = centerY
+	else
+		oldCenterX = gwidth / 2
+		oldCenterY = gheight / 2
+	endif
+	centerX = gwidth / 2
+	centerY = gheight / 2
+	centerX2 = centerX
+	centerY2 = centerY
+	starsCenterX = centerX
+	starsCenterY = centerY
 	radius = gheight / 2 - 50
 	radius2 = gheight / 8
-	vertices = rnd( 14 ) + 6
+	vertices = rnd( 16 ) + 4
 	gap = 360 / vertices
-	intro = radius / 10
-	intro2 = radius2 / 10
+	if oneTimeInit = true then
+		playerAngle = gap / 2
+		oneTimeInit = false
+	else
+		playerAngle = gap * int( playerAngle / gap )
+		playerAngle = playerAngle + ( gap / 2 )
+	endif
+	intro = 0
+	intro2 = 0
 	playerX = 0
 	playerY = 0
-	playerAngle = gap / 2
 	moveDelay = int( ( 25 - vertices ) / 2 )
 	moveCount = 0
 	numLasers = 0
@@ -278,16 +318,10 @@ def proc setup
 		laserDist( i ) = radius2 - 1
 		laserAngle( i ) = 0
 	repeat
-	starNum = 0
-	while starNum < maxStars cycle
-		stars( starNum ) = rnd( 360 )
-		starsSpeed( starNum ) = rnd( 4 ) + 1
-		starsDist( starNum ) = rnd( gheight )
-		starNum = starNum + 1
-	repeat
-	starNum = 0
 	while intro < radius cycle
 		cls2
+		tmpCenterX = oldCenterX + ( intro / radius ) * ( centerX - oldCenterX )
+		tmpCenterY = oldCenterY + ( intro / radius ) * ( centerY - oldCenterY )
 		oldX = intro * cos( angle - gap )
 		oldX = centerX + oldX
 		oldY = intro * sin( angle - gap )
@@ -339,8 +373,25 @@ def proc setup
 			angle = angle + gap
 		repeat
 		angle = 0
-		intro = intro + ( radius / 25 )
-		intro2 = intro2 + ( radius2 / 25 )
+		intro = intro + ( radius / 20 )
+		intro2 = intro2 + ( radius2 / 20 )
+		tmpPlayerAngle = oldPlayerAngle + ( intro / radius ) * ( playerAngle - oldPlayerAngle )
+		colour = yellow
+		playerX = ( ( ( radius * cos( tmpPlayerAngle - ( gap / 2 ) ) ) + tmpCenterX ) + ( ( radius * cos( tmpPlayerAngle + ( gap / 2 ) ) ) + tmpCenterX ) ) / 2
+		playerY = ( ( ( radius * sin( tmpPlayerAngle - ( gap / 2 ) ) ) + tmpCenterY ) + ( ( radius * sin( tmpPlayerAngle + ( gap / 2 ) ) ) + tmpCenterY ) ) / 2
+		c = cos( tmpPlayerAngle + 90 )
+		s = sin( tmpPlayerAngle + 90 )
+		u = gheight / 80
+		polystart
+			polyplot( ( u*5 * c ) - ( u*5 * s ) + playerX, ( u*5 * s ) + ( u*5 * c ) + playerY )
+			polyplot( ( u*5 * c ) - ( 0 * s ) + playerX, ( u*5 * s ) + ( 0 * c ) + playerY )
+			polyplot( ( 0 * c ) - ( u*-2 * s ) + playerX, ( 0 * s ) + ( u*-2 * c ) + playerY )
+			polyplot( ( u*-5 * c ) - ( 0 * s ) + playerX, ( u*-5 * s ) + ( 0 * c ) + playerY )
+			polyplot( ( u*-5 * c ) - ( u*5 * s ) + playerX, ( u*-5 * s ) + ( u*5 * c ) + playerY )
+			polyplot( ( u*-7 * c ) - ( 0 * s ) + playerX, ( u*-7 * s ) + ( 0 * c ) + playerY )
+			polyplot( ( 0 * c ) - ( u*-4 * s ) + playerX, ( 0 * s ) + ( u*-4 * c ) + playerY )
+			polyplot( ( u*7 * c ) - ( 0 * s ) + playerX, ( u*7 * s ) + ( 0 * c ) + playerY )
+		polyend
 		update
 		frames = frames + 1
 		if time - 1000 > oldTime then
