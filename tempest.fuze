@@ -37,6 +37,7 @@ enemyDelay = 100
 enemyCount = enemyDelay
 dim enemyAngle( maxEnemies )
 dim enemyDist( maxEnemies )
+dim enemyMove( maxEnemies )
 playerAngle = 0
 oldPlayerAngle = playerAngle
 oneTimeInit = true
@@ -266,11 +267,18 @@ cycle
 					wait( 2 )
 					end
 				endif
-				if enemyAngle( i ) > playerAngle then
-					enemyAngle( i ) = enemyAngle( i ) - gap
+				if enemyMove( i ) > 0 then
+					enemyMove( i ) = enemyMove( i ) - 1
 				endif
-				if enemyAngle( i ) < playerAngle then
-					enemyAngle( i ) = enemyAngle( i ) + gap
+				if enemyMove( i ) = 0 then
+					if enemyAngle( i ) > playerAngle then
+						enemyAngle( i ) = enemyAngle( i ) - ( gap / 2 )
+						enemyMove( i ) = moveDelay * 2
+					endif
+					if enemyAngle( i ) < playerAngle then
+						enemyAngle( i ) = enemyAngle( i ) + ( gap / 2 )
+						enemyMove( i ) = moveDelay * 2
+					endif
 				endif
 			else
 				if enemyDist( i ) > radius then
