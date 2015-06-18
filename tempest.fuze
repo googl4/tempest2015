@@ -30,13 +30,17 @@ laserCount = 0
 dim laserDist( maxLasers )
 dim laserAngle( maxLasers )
 maxEnemies = 5
+numEnemies = 0
 enemyX = 0
 enemyY = 0
+enemyDelay = 120
+enemyCount = 0
 dim enemyAngle( maxEnemies )
-dim enemyAngle( maxEnemies )
+dim enemyDist( maxEnemies )
 playerAngle = 0
 oldPlayerAngle = playerAngle
 oneTimeInit = true
+score = 0
 starNum = 0
 while starNum < maxStars cycle
 	stars( starNum ) = rnd( 360 )
@@ -73,7 +77,7 @@ cycle
 		if laserCount = 0 then
 			if numLasers < maxLasers then
 				for i = 0 to maxLasers cycle
-					if laserDist( i ) = radius2 - 1 then
+					if laserDist( i ) = radius2 then
 						laserDist( i ) = sqrt( ( ( centerX - playerX ) * ( centerX - playerX ) ) + ( ( centerY - playerY ) * ( centerY - playerY ) ) )
 						laserAngle( i ) = playerAngle
 						numLasers = numLasers + 1
@@ -84,6 +88,12 @@ cycle
 			endif
 		endif
 	endif
+	if playerAngle > 360 then
+		playerAngle = playerAngle - 360
+	endif
+	if playerAngle < 0 then
+		playerAngle = 360 + playerAngle
+	endif
 	if warp = true then
 		radius = radius + ( gheight / 10 )
 		radius2 = radius2 + ( gheight / 20 )
@@ -93,6 +103,23 @@ cycle
 	endif
 	if laserCount > 0 then
 		laserCount = laserCount - 1
+	endif
+	if enemyCount > 0 then
+		enemyCount = enemyCount - 1
+	else
+		if enemyCount = 0 then
+			if numEnemies < maxEnemies then
+				for i = 0 to maxEnemies cycle
+					if enemyDist( i ) = radius then
+						enemyDist( i ) = radius2
+						enemyAngle( i ) = ( rnd( vertices ) * gap ) + ( gap / 2 )
+						numEnemies = numEnemies + 1
+						enemyCount = enemyDelay
+						break
+					endif
+				repeat
+			endif
+		endif
 	endif
 	colour = white
 	while starNum < maxStars cycle
@@ -168,42 +195,81 @@ cycle
 			centerY2 = centerY2 - 2
 		endif
 	endif
-	colour = aqua
-	for i = 0 to maxLasers cycle
-		if laserDist( i ) > radius2 then
-			laserDist( i ) = laserDist( i ) - 1
-			laserX = ( ( laserDist( i ) * 0.9 ) * cos( laserAngle( i ) ) ) + ( ( centerX + centerX2 ) / 2 )
-			laserY = ( ( laserDist( i ) * 0.9 ) * sin( laserAngle( i ) ) ) + ( ( centerY + centerY2 ) / 2 )
-			laserX2 = ( ( laserDist( i ) ) * cos( laserAngle( i ) + 5 ) ) + ( ( centerX + centerX2 ) / 2 )
-			laserY2 = ( ( laserDist( i ) ) * sin( laserAngle( i ) + 5 ) ) + ( ( centerY + centerY2 ) / 2 )
-			laserX3 = ( ( laserDist( i ) * 1.1 ) * cos( laserAngle( i ) ) ) + ( ( centerX + centerX2 ) / 2 )
-			laserY3 = ( ( laserDist( i ) * 1.1 ) * sin( laserAngle( i ) ) ) + ( ( centerY + centerY2 ) / 2 )
-			laserX4 = ( ( laserDist( i ) ) * cos( laserAngle( i ) - 5 ) ) + ( ( centerX + centerX2 ) / 2 )
-			laserY4 = ( ( laserDist( i ) ) * sin( laserAngle( i ) - 5 ) ) + ( ( centerY + centerY2 ) / 2 )
-			line( laserX, laserY, laserX2, laserY2 )
-			line( laserX2, laserY2, laserX3, laserY3 )
-			line( laserX3, laserY3, laserX4, laserY4 )
-			line( laserX4, laserY4, laserX, laserY )
-			laserDist( i ) = laserDist( i ) - 1
-		endif
-		if laserDist( i ) < radius2 then
-			laserDist( i ) = radius2 - 1
-			numLasers = numLasers - 1
-		endif
-	repeat
+	if warp = false then
+		colour = aqua
+		for i = 0 to maxLasers cycle
+			if laserDist( i ) > radius2 then
+				laserDist( i ) = laserDist( i ) - 1
+				laserX = ( ( laserDist( i ) * 0.9 ) * cos( laserAngle( i ) ) ) + ( ( centerX + centerX2 ) / 2 )
+				laserY = ( ( laserDist( i ) * 0.9 ) * sin( laserAngle( i ) ) ) + ( ( centerY + centerY2 ) / 2 )
+				laserX2 = ( ( laserDist( i ) ) * cos( laserAngle( i ) + 5 ) ) + ( ( centerX + centerX2 ) / 2 )
+				laserY2 = ( ( laserDist( i ) ) * sin( laserAngle( i ) + 5 ) ) + ( ( centerY + centerY2 ) / 2 )
+				laserX3 = ( ( laserDist( i ) * 1.1 ) * cos( laserAngle( i ) ) ) + ( ( centerX + centerX2 ) / 2 )
+				laserY3 = ( ( laserDist( i ) * 1.1 ) * sin( laserAngle( i ) ) ) + ( ( centerY + centerY2 ) / 2 )
+				laserX4 = ( ( laserDist( i ) ) * cos( laserAngle( i ) - 5 ) ) + ( ( centerX + centerX2 ) / 2 )
+				laserY4 = ( ( laserDist( i ) ) * sin( laserAngle( i ) - 5 ) ) + ( ( centerY + centerY2 ) / 2 )
+				line( laserX, laserY, laserX2, laserY2 )
+				line( laserX2, laserY2, laserX3, laserY3 )
+				line( laserX3, laserY3, laserX4, laserY4 )
+				line( laserX4, laserY4, laserX, laserY )
+				laserDist( i ) = laserDist( i ) - ( gheight / 300 )
+				for e = 0 to maxEnemies cycle
+					if laserAngle( i ) = enemyAngle( e ) then
+						if laserDist( i ) < enemyDist( e ) then
+							enemyDist( e ) = radius
+							numEnemies = numEnemies - 1
+							score = score + 10
+							laserDist( i ) = radius2
+							numLasers = numLasers - 1
+							break
+						endif
+					endif
+				repeat
+			endif
+			if laserDist( i ) < radius2 then
+				laserDist( i ) = radius2
+				numLasers = numLasers - 1
+			endif
+		repeat
+		colour = red
+		for i = 0 to maxEnemies cycle
+			if enemyDist( i ) < radius then
+				enemyX = ( ( ( enemyDist( i ) * cos( enemyAngle( i ) - ( gap / 2 ) ) ) + ( ( centerX + centerX2 ) / 2 ) ) + ( ( enemyDist( i ) * cos( enemyAngle( i ) + ( gap / 2 ) ) ) + ( ( centerX + centerX ) / 2 ) ) ) / 2
+				enemyY = ( ( ( enemyDist( i ) * sin( enemyAngle( i ) - ( gap / 2 ) ) ) + ( ( centerY + centerY2 ) / 2 ) ) + ( ( enemyDist( i ) * sin( enemyAngle( i ) + ( gap / 2 ) ) ) + ( ( centerY + centerY2 ) / 2 ) ) ) / 2
+				c = cos( enemyAngle( i ) + 90 )
+				s = sin( enemyAngle( i ) + 90 )
+				u = enemyDist( i ) / 20
+				polystart
+					polyplot( ( u*-5 * c ) - ( u*1.5 * s ) + enemyX, ( u*-5 * s ) + ( u*1.5 * c ) + enemyY )
+					polyplot( 0 - ( u*0.5 * s ) + enemyX, ( u*0.5 * c ) + enemyY )
+					polyplot( ( u*5 * c ) - ( u*1.5 * s ) + enemyX, ( u*5 * s ) + ( u*1.5 * c ) + enemyY )
+					polyplot( u * c + enemyX, u * s + enemyY )
+					polyplot( ( u*5 * c ) - ( u*-1.5 * s ) + enemyX, ( u*5 * s ) + ( u*-1.5 * c ) + enemyY )
+					polyplot( 0 - ( u*-0.5 * s ) + enemyX, ( u*-0.5 * c ) + enemyY )
+					polyplot( ( u*-5 * c ) - ( u*-1.5 * s ) + enemyX, ( u*-5 * s ) + ( u*-1.5 * c ) + enemyY )
+					polyplot( ( u*-1 * c ) + enemyX, ( u*-1 * s ) + enemyY )
+				polyend
+				enemyDist( i ) = enemyDist( i ) + ( gheight / 600 )
+			endif
+			if enemyDist( i ) > radius then
+				enemyDist( i ) = radius
+				numEnemies = numEnemies - 1
+			endif
+		repeat
+	endif
 	colour = yellow
 	c = cos( playerAngle + 90 )
 	s = sin( playerAngle + 90 )
 	u = gheight / 80
 	polystart
 		polyplot( ( u*5 * c ) - ( u*5 * s ) + playerX, ( u*5 * s ) + ( u*5 * c ) + playerY )
-		polyplot( ( u*5 * c ) - ( 0 * s ) + playerX, ( u*5 * s ) + ( 0 * c ) + playerY )
-		polyplot( ( 0 * c ) - ( u*-2 * s ) + playerX, ( 0 * s ) + ( u*-2 * c ) + playerY )
-		polyplot( ( u*-5 * c ) - ( 0 * s ) + playerX, ( u*-5 * s ) + ( 0 * c ) + playerY )
+		polyplot( ( u*5 * c ) - 0 + playerX, ( u*5 * s ) + playerY )
+		polyplot( 0 - ( u*-2 * s ) + playerX, ( u*-2 * c ) + playerY )
+		polyplot( ( u*-5 * c ) - 0 + playerX, ( u*-5 * s ) + playerY )
 		polyplot( ( u*-5 * c ) - ( u*5 * s ) + playerX, ( u*-5 * s ) + ( u*5 * c ) + playerY )
-		polyplot( ( u*-7 * c ) - ( 0 * s ) + playerX, ( u*-7 * s ) + ( 0 * c ) + playerY )
-		polyplot( ( 0 * c ) - ( u*-4 * s ) + playerX, ( 0 * s ) + ( u*-4 * c ) + playerY )
-		polyplot( ( u*7 * c ) - ( 0 * s ) + playerX, ( u*7 * s ) + ( 0 * c ) + playerY )
+		polyplot( ( u*-7 * c ) - 0 + playerX, ( u*-7 * s ) + playerY )
+		polyplot( 0 - ( u*-4 * s ) + playerX, ( u*-4 * c ) + playerY )
+		polyplot( ( u*7 * c ) - 0 + playerX, ( u*7 * s ) + playerY )
 	polyend
 	update
 	frames = frames + 1
@@ -218,8 +284,20 @@ cycle
 			centerY2 = centerY
 			starsCenterX = centerX
 			starsCenterY = centerY
+			oldRadius = radius
+			oldRadius2 = radius2
 			radius = gheight / 2 - 50
 			radius2 = gheight / 8
+			for i = 0 to maxLasers cycle
+				if laserDist( i ) = oldRadius2 then
+					laserDist( i ) = radius2
+				endif
+			repeat
+			for i = 0 to maxEnemies cycle
+				if enemyDist( i ) = oldRadius then
+					enemyDist( i ) = radius
+				endif
+			repeat
 		endif
 		if frames > maxfps then
 			if yres < maxyres then
@@ -242,8 +320,15 @@ cycle
 				centerY2 = centerY
 				starsCenterX = centerX
 				starsCenterY = centerY
+				oldRadius = radius
+				oldRadius2 = radius2
 				radius = gheight / 2 - 50
 				radius2 = gheight / 8
+				for i = 0 to maxLasers cycle
+					if laserDist( i ) = oldRadius2 then
+						laserDist( i ) = radius2
+					endif
+				repeat
 				if xres = maxxres then
 					if yres = maxyres then
 						isMaxResolution = true
@@ -311,12 +396,17 @@ def proc setup
 	intro2 = 0
 	playerX = 0
 	playerY = 0
-	moveDelay = int( ( 25 - vertices ) / 2 )
+	numEnemies = 0
+	moveDelay = int( ( 25 - vertices ) / 4 )
 	moveCount = 0
 	numLasers = 0
 	for i = 0 to maxLasers cycle
-		laserDist( i ) = radius2 - 1
+		laserDist( i ) = radius2
 		laserAngle( i ) = 0
+	repeat
+	for i = 0 to maxEnemies cycle
+		enemyDist( i ) = radius
+		enemyAngle( i ) = 0
 	repeat
 	while intro < radius cycle
 		cls2
@@ -405,8 +495,15 @@ def proc setup
 				centerY2 = centerY
 				starsCenterX = centerX
 				starsCenterY = centerY
+				oldRadius = radius
+				oldRadius2 = radius2
 				radius = gheight / 2 - 50
 				radius2 = gheight / 8
+				for i = 0 to maxLasers cycle
+					if laserDist( i ) = oldRadius2 then
+						laserDist( i ) = radius2
+					endif
+				repeat
 			endif
 			if frames > maxfps then
 				if yres < maxyres then
@@ -429,8 +526,15 @@ def proc setup
 					centerY2 = centerY
 					starsCenterX = centerX
 					starsCenterY = centerY
+					oldRadius = radius
+					oldRadius2 = radius2
 					radius = gheight / 2 - 50
 					radius2 = gheight / 8
+					for i = 0 to maxLasers cycle
+						if laserDist( i ) = oldRadius2 then
+							laserDist( i ) = radius2
+						endif
+					repeat
 					if xres = maxxres then
 						if yres = maxyres then
 							isMaxResolution = true
