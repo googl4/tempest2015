@@ -3,8 +3,8 @@ xres = 640
 yres = 480
 maxxres = 1920
 maxyres = 1080
-minfps = 55
-maxfps = 65
+minfps = 25
+maxfps = 35
 isMaxResolution = false
 totalFrames = 0
 setmode( xres, yres )
@@ -41,6 +41,7 @@ enemyCount = enemyDelay
 dim enemyAngle( maxEnemies )
 dim enemyDist( maxEnemies )
 dim enemyMove( maxEnemies )
+dim enemyHealth( maxEnemies )
 playerAngle = 0
 oldPlayerAngle = playerAngle
 oneTimeInit = true
@@ -49,7 +50,7 @@ enemies = true
 starNum = 0
 while starNum < maxStars cycle
 	stars( starNum ) = rnd( 360 )
-	starsSpeed( starNum ) = rnd( 4 ) + 1
+	starsSpeed( starNum ) = rnd( 7 ) + 1
 	starsDist( starNum ) = rnd( gheight )
 	starNum = starNum + 1
 repeat
@@ -60,12 +61,18 @@ cycle
 		if moveCount = 0 then
 			playerAngle = playerAngle + gap
 			moveCount = moveDelay
+			if playerAngle > 360 then
+				playerAngle = gap / 2
+			endif
 		endif
 	endif
 	if scankeyboard( scanleft ) then
 		if moveCount = 0 then
 			playerAngle = playerAngle - gap
 			moveCount = moveDelay
+			if playerAngle < 0 then
+				playerAngle = 360 - ( gap / 2 )
+			endif
 		endif
 	endif
 	if scankeyboard( scanq ) then
@@ -115,17 +122,20 @@ cycle
 				particleLaser = true
 			endif
 		endif
+		if scankeyboard( scanr ) then
+			warp = true
+		endif
 	endif
 	if particleLaser = false then
 		if powerupDist = radius then
 			if rnd( 100 ) = 1 then
-				powerupAngle = ( rnd( vertices ) * gap ) + ( gap / 2 )
+				powerupAngle = ( rnd( vertices - 1 ) * gap ) + ( gap / 2 )
 				powerupDist = radius2
 			endif
 		endif
 	endif
 	if powerupDist < radius then
-		powerupDist = powerupDist + ( radius / 200 )
+		powerupDist = powerupDist + ( radius / 40 )
 	endif
 	if powerupDist > radius then
 		if powerupAngle > playerAngle - ( gap / 2 ) then
@@ -142,12 +152,6 @@ cycle
 			powerupColour = green
 		endif
 	endif
-	while playerAngle > 360 cycle
-		playerAngle = playerAngle - 360
-	repeat
-	while playerAngle < 0 cycle
-		playerAngle = 360 + playerAngle
-	repeat
 	if warp = true then
 		radius = radius + ( gheight / 10 )
 		radius2 = radius2 + ( gheight / 20 )
@@ -173,7 +177,7 @@ cycle
 					for i = 0 to maxEnemies cycle
 						if enemyDist( i ) = radius then
 							enemyDist( i ) = radius2
-							enemyAngle( i ) = ( rnd( vertices ) * gap ) + ( gap / 2 )
+							enemyAngle( i ) = ( rnd( vertices - 1 ) * gap ) + ( gap / 2 )
 							numEnemies = numEnemies + 1
 							enemyCount = enemyDelay
 							break
@@ -235,26 +239,26 @@ cycle
 	endif
 	if playerX + 4 < gwidth / 2 then
 		if centerX < ( gwidth / 2 ) + ( gwidth / 20 ) then
-			centerX = centerX + 4
-			centerX2 = centerX2 + 2
+			centerX = centerX + 8
+			centerX2 = centerX2 + 4
 		endif
 	endif
 	if playerX - 4 > gwidth / 2 then
 		if centerX > ( gwidth / 2 ) - ( gwidth / 20 ) then
-			centerX = centerX - 4
-			centerX2 = centerX2 - 2
+			centerX = centerX - 8
+			centerX2 = centerX2 - 4
 		endif
 	endif
 	if playerY + 4 < gheight / 2 then
 		if centerY < ( gheight / 2 ) + ( gheight / 20 ) then
-			centerY = centerY + 4
-			centerY2 = centerY2 + 2
+			centerY = centerY + 8
+			centerY2 = centerY2 + 4
 		endif
 	endif
 	if playerY - 4 > gheight / 2 then
 		if centerY > ( gheight / 2 ) - ( gheight / 20 ) then
-			centerY = centerY - 4
-			centerY2 = centerY2 - 2
+			centerY = centerY - 8
+			centerY2 = centerY2 - 4
 		endif
 	endif
 	if warp = false then
@@ -264,10 +268,14 @@ cycle
 			cY = fn lerp( centerY2, centerY, powerupDist / radius )
 			powerupX = ( ( ( powerupDist * cos( powerupAngle - ( gap / 2 ) ) ) + cX ) + ( ( powerupDist * cos( powerupAngle + ( gap / 2 ) ) ) + cX ) ) / 2
 			powerupY = ( ( ( powerupDist * sin( powerupAngle - ( gap / 2 ) ) ) + cY ) + ( ( powerupDist * sin( powerupAngle + ( gap / 2 ) ) ) + cY ) ) / 2
-			u = powerupDist / 10
+			c = cos( powerupAngle + 45 )
+			s = sin( powerupAngle + 45 )
+			u = powerupDist / 15
 			polystart
-				polyplot( ( u*1.5 * c ) - ( u * s ) + powerupX, ( u*1.5 * s ) + ( u * c ) + powerupY )
-				polyplot( ( u * c ) - ( u*1.5 * s ) + powerupX, ( u * s ) + ( u*1.5 * c ) + powerupY )
+				polyplot( ( u*2 * c ) - ( u*2 * s ) + powerupX, ( u*2 * s ) + ( u*2 * c ) + powerupY )
+				polyplot( ( u*2 * c ) - ( u*-2 * s ) + powerupX, ( u*2 * s ) + ( u*-2 * c ) + powerupY )
+				polyplot( ( u*-2 * c ) - ( u*-2 * s ) + powerupX, ( u*-2 * s ) + ( u*-2 * c ) + powerupY )
+				polyplot( ( u*-2 * c ) - ( u*2 * s ) + powerupX, ( u*-2 * s ) + ( u*2 * c ) + powerupY )
 			polyend
 		endif
 		colour = aqua
@@ -310,20 +318,31 @@ cycle
 				line( laserX2, laserY2, laserX3, laserY3 )
 				line( laserX3, laserY3, laserX4, laserY4 )
 				line( laserX4, laserY4, laserX, laserY )
-				laserDist( i ) = laserDist( i ) - ( radius / 120 )
+				laserDist( i ) = laserDist( i ) - ( radius / 60 )
 				for e = 0 to maxEnemies cycle
-					if laserAngle( i ) > enemyAngle( e ) - ( gap / 2 ) then
-						if laserAngle( i ) < enemyAngle( e ) + ( gap / 2 ) then
-							if laserDist( i ) < enemyDist( e ) then
-								enemyDist( e ) = radius
-								numEnemies = numEnemies - 1
-								score = score + 10
-								laserDist( i ) = radius2
-								numLasers = numLasers - 1
-								if enemyDelay > 20 then
-									enemyDelay = enemyDelay - 1
+					if laserDist( i ) < radius then
+						if laserDist( i ) < enemyDist( e ) then
+							if laserAngle( i ) < enemyAngle( e ) + ( gap / 2 ) then
+								if laserAngle( i ) > enemyAngle( e ) - ( gap / 2 ) then
+									if enemyDist( e ) < radius then
+										if particleLaser = true then
+											enemyHealth( e ) = enemyHealth( e ) - 25
+										else
+											enemyHealth( e ) = enemyHealth( e ) - 100
+										endif
+										if enemyHealth( e ) < 1 then
+											enemyDist( e ) = radius
+											numEnemies = numEnemies - 1
+											score = score + 10
+											if enemyDelay > 40 then
+												enemyDelay = enemyDelay - 1
+											endif
+											break
+										endif
+										laserDist( i ) = radius2
+										numLasers = numLasers - 1
+									endif
 								endif
-								break
 							endif
 						endif
 					endif
@@ -336,12 +355,6 @@ cycle
 		repeat
 		colour = red
 		for i = 0 to maxEnemies cycle
-			while enemyAngle( i ) > 360 cycle
-				enemyAngle( i ) = enemyAngle( i ) - 360
-			repeat
-			while enemyAngle( i ) < 0 cycle
-				enemyAngle( i ) = 360 + enemyAngle( i )
-			repeat
 			if enemyDist( i ) = radius then
 			else
 				cX = fn lerp( centerX2, centerX, enemyDist( i ) / radius )
@@ -363,18 +376,20 @@ cycle
 				polyend
 			endif
 			if enemyDist( i ) < radius then
-				enemyDist( i ) = enemyDist( i ) + ( radius / 180 )
+				enemyDist( i ) = enemyDist( i ) + ( radius / 120 )
 			endif
 			if enemyDist( i ) = radius + 1 then
-				if enemyAngle( i ) = playerAngle then
-					fontscale( 2, 2 )
-					printat( twidth / 2 - 5, theight / 2 )
-					print "Game Over!"
-					printat( twidth / 2 - 5, theight / 2 + 2 )
-					print "Score: ";
-					print score
-					wait( 2 )
-					end
+				if enemyAngle( i ) > playerAngle - ( gap / 2 ) then
+					if enemyAngle( i ) < playerAngle + ( gap / 2 ) then
+						fontscale( 2, 2 )
+						printat( twidth / 2 - 5, theight / 2 )
+						print "Game Over!"
+						printat( twidth / 2 - 5, theight / 2 + 2 )
+						print "Score: ";
+						print score
+						wait( 2 )
+						end
+					endif
 				endif
 				if enemyMove( i ) > 0 then
 					enemyMove( i ) = enemyMove( i ) - 1
@@ -411,7 +426,7 @@ cycle
 		polyplot( ( u*7 * c ) - 0 + playerX, ( u*7 * s ) + playerY )
 	polyend
 	if score > 0 then
-		if score mod 100 = 0 then
+		if score mod 200 = 0 then
 			score = score + 10
 			warp = true
 		endif
@@ -580,6 +595,7 @@ def proc setup
 	for i = 0 to maxEnemies cycle
 		enemyDist( i ) = radius
 		enemyAngle( i ) = 0
+		enemyHealth( i ) = 100
 	repeat
 	while intro < radius cycle
 		cls2
@@ -636,8 +652,8 @@ def proc setup
 			angle = angle + gap
 		repeat
 		angle = 0
-		intro = intro + ( radius / 20 )
-		intro2 = intro2 + ( radius2 / 20 )
+		intro = intro + ( radius / 10 )
+		intro2 = intro2 + ( radius2 / 10 )
 		tmpPlayerAngle = fn lerp( oldPlayerAngle, playerAngle, intro / radius )
 		colour = yellow
 		playerX = ( ( ( radius * cos( tmpPlayerAngle - ( gap / 2 ) ) ) + tmpCenterX ) + ( ( radius * cos( tmpPlayerAngle + ( gap / 2 ) ) ) + tmpCenterX ) ) / 2
