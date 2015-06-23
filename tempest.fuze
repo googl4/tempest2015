@@ -1,4 +1,4 @@
-debugKeys = false
+debugKeys = true
 xres = 640
 yres = 480
 maxxres = 1920
@@ -8,6 +8,7 @@ maxfps = 35
 isMaxResolution = false
 totalFrames = 0
 setmode( xres, yres )
+updatemode = 0
 maxStars = 100
 dim stars( maxStars )
 dim starsSpeed( maxStars )
@@ -47,6 +48,8 @@ oldPlayerAngle = playerAngle
 oneTimeInit = true
 score = 0
 enemies = true
+debugDelay = 10
+debugCount = 0
 starNum = 0
 while starNum < maxStars cycle
 	stars( starNum ) = rnd( 360 )
@@ -104,26 +107,35 @@ cycle
 		endif
 	endif
 	if debugKeys = true then
-		if scankeyboard( scanp ) then
-			powerupAngle = ( rnd( vertices - 1 ) * gap ) + ( gap / 2 )
-			powerupDist = radius2
+		if debugCount > 0 then
+			debugCount = debugCount - 1
 		endif
-		if scankeyboard( scans ) then
-			if enemies = true then
-				enemies = false
-			else
-				enemies = true
+		if debugCount = 0 then
+			if scankeyboard( scanp ) then
+				powerupAngle = ( rnd( vertices - 1 ) * gap ) + ( gap / 2 )
+				powerupDist = radius2
+				debugCount = debugDelay
 			endif
-		endif
-		if scankeyboard( scanl ) then
-			if particleLaser = true then
-				particleLaser = false
-			else
-				particleLaser = true
+			if scankeyboard( scans ) then
+				if enemies = true then
+					enemies = false
+				else
+					enemies = true
+				endif
+				debugCount = debugDelay
 			endif
-		endif
-		if scankeyboard( scanr ) then
-			warp = true
+			if scankeyboard( scanl ) then
+				if particleLaser = true then
+					particleLaser = false
+				else
+					particleLaser = true
+				endif
+				debugCount = debugDelay
+			endif
+			if scankeyboard( scanr ) then
+				warp = true
+				debugCount = debugDelay
+			endif
 		endif
 	endif
 	if particleLaser = false then
@@ -178,6 +190,7 @@ cycle
 						if enemyDist( i ) = radius then
 							enemyDist( i ) = radius2
 							enemyAngle( i ) = ( rnd( vertices - 1 ) * gap ) + ( gap / 2 )
+							enemyHealth( i ) = 100
 							numEnemies = numEnemies + 1
 							enemyCount = enemyDelay
 							break
@@ -281,7 +294,6 @@ cycle
 		colour = aqua
 		for i = 0 to maxLasers cycle
 			if laserDist( i ) > radius2 then
-				laserDist( i ) = laserDist( i ) - 1
 				cX = fn lerp( centerX2, centerX, laserDist( i ) / radius )
 				cY = fn lerp( centerY2, centerY, laserDist( i ) / radius )
 				if particleLaser = false then
@@ -325,8 +337,10 @@ cycle
 							if laserAngle( i ) < enemyAngle( e ) + ( gap / 2 ) then
 								if laserAngle( i ) > enemyAngle( e ) - ( gap / 2 ) then
 									if enemyDist( e ) < radius then
+										laserDist( i ) = radius2
+										numLasers = numLasers - 1
 										if particleLaser = true then
-											enemyHealth( e ) = enemyHealth( e ) - 25
+											enemyHealth( e ) = enemyHealth( e ) - 50
 										else
 											enemyHealth( e ) = enemyHealth( e ) - 100
 										endif
@@ -334,13 +348,11 @@ cycle
 											enemyDist( e ) = radius
 											numEnemies = numEnemies - 1
 											score = score + 10
-											if enemyDelay > 40 then
+											if enemyDelay > 15 then
 												enemyDelay = enemyDelay - 1
 											endif
 											break
 										endif
-										laserDist( i ) = radius2
-										numLasers = numLasers - 1
 									endif
 								endif
 							endif
