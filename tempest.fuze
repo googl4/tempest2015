@@ -1,4 +1,4 @@
-debugKeys = true
+debugKeys = false
 xres = 640
 yres = 480
 maxxres = 1920
@@ -9,6 +9,7 @@ isMaxResolution = false
 totalFrames = 0
 setmode( xres, yres )
 updatemode = 0
+fontscale( 4, 4 )
 maxStars = 100
 dim stars( maxStars )
 dim starsSpeed( maxStars )
@@ -50,6 +51,11 @@ score = 0
 enemies = true
 debugDelay = 10
 debugCount = 0
+messageCount = 0
+message$ = ""
+oldScore = 0
+scoreTime = 0
+scoreBoost = 1
 starNum = 0
 while starNum < maxStars cycle
 	stars( starNum ) = rnd( 360 )
@@ -138,12 +144,10 @@ cycle
 			endif
 		endif
 	endif
-	if particleLaser = false then
-		if powerupDist = radius then
-			if rnd( 100 ) = 1 then
-				powerupAngle = ( rnd( vertices - 1 ) * gap ) + ( gap / 2 )
-				powerupDist = radius2
-			endif
+	if powerupDist = radius then
+		if rnd( 200 ) = 1 then
+			powerupAngle = ( rnd( vertices - 1 ) * gap ) + ( gap / 2 )
+			powerupDist = radius2
 		endif
 	endif
 	if powerupDist < radius then
@@ -152,7 +156,21 @@ cycle
 	if powerupDist > radius then
 		if powerupAngle > playerAngle - ( gap / 2 ) then
 			if powerupAngle < playerAngle + ( gap / 2 ) then
-				particleLaser = true
+				if particleLaser = false then
+					if rnd( 1 ) = 0 then
+						scoreBoost = scoreBoost + 1
+						message$ = "Score Boost!"
+						messageCount = 30
+					else
+						particleLaser = true
+						message$ = "Particle Laser!"
+						messageCount = 30
+					endif
+				else
+					scoreBoost = scoreBoost + 1
+					message$ = "Score Boost!"
+					messageCount = 30
+				endif
 			endif
 		endif
 		powerupDist = radius
@@ -347,7 +365,9 @@ cycle
 										if enemyHealth( e ) < 1 then
 											enemyDist( e ) = radius
 											numEnemies = numEnemies - 1
-											score = score + 10
+											oldScore = score
+											scoreTime = 1
+											score = score + ( 10 * scoreBoost )
 											if enemyDelay > 15 then
 												enemyDelay = enemyDelay - 1
 											endif
@@ -393,12 +413,12 @@ cycle
 			if enemyDist( i ) = radius + 1 then
 				if enemyAngle( i ) > playerAngle - ( gap / 2 ) then
 					if enemyAngle( i ) < playerAngle + ( gap / 2 ) then
-						fontscale( 2, 2 )
-						printat( twidth / 2 - 5, theight / 2 )
+						printat( twidth / 2 - 5, theight / 2 - 1 )
 						print "Game Over!"
-						printat( twidth / 2 - 5, theight / 2 + 2 )
+						printat( twidth / 2 - 5, theight / 2 + 1 )
 						print "Score: ";
 						print score
+						update
 						wait( 2 )
 						end
 					endif
@@ -438,10 +458,28 @@ cycle
 		polyplot( ( u*7 * c ) - 0 + playerX, ( u*7 * s ) + playerY )
 	polyend
 	if score > 0 then
-		if score mod 200 = 0 then
-			score = score + 10
+		if score mod 100 = 0 then
+			oldScore = score
+			score = score + ( 10 * scoreBoost )
+			scoreTime = 1
 			warp = true
 		endif
+	endif
+	if frames mod 3 = 0 then
+		ink = rnd( 14 ) + 1
+	endif
+	printat( 0, 0 )
+	if scoreTime > 0.1 then
+		scoreTime = scoreTime - 0.1
+	endif
+	print fn lerp( score, oldScore, scoreTime )
+	if messageCount > 0 then
+		fontscale( 6, 6 )
+		printat( twidth / 2 - 7, theight / 2 )
+		ink = rnd( 14 ) + 1
+		print message$
+		messageCount = messageCount - 1
+		fontscale( 4, 4 )
 	endif
 	update
 	frames = frames + 1
@@ -450,6 +488,7 @@ cycle
 			yres = yres - ( ( 10 * ( minfps - frames ) ) * ( yres / xres ) )
 			xres = xres - ( 10 * ( minfps - frames ) )
 			setmode( xres, yres )
+			fontscale( 4, 4 )
 			centerX = gwidth / 2
 			centerY = gheight / 2
 			centerX2 = centerX
@@ -490,6 +529,7 @@ cycle
 			endif
 			if isMaxResolution = false then
 				setmode( xres, yres )
+				fontscale( 4, 4 )
 				centerX = gwidth / 2
 				centerY = gheight / 2
 				centerX2 = centerX
@@ -683,6 +723,11 @@ def proc setup
 			polyplot( ( 0 * c ) - ( u*-4 * s ) + playerX, ( 0 * s ) + ( u*-4 * c ) + playerY )
 			polyplot( ( u*7 * c ) - ( 0 * s ) + playerX, ( u*7 * s ) + ( 0 * c ) + playerY )
 		polyend
+		if frames mod 5 = 0 then
+			ink = rnd( 14 ) + 1
+		endif
+		printat( 0, 0 )
+		print score
 		update
 		frames = frames + 1
 		if time - 1000 > oldTime then
@@ -690,6 +735,7 @@ def proc setup
 				yres = yres - ( ( 10 * ( minfps - frames ) ) * ( yres / xres ) )
 				xres = xres - ( 10 * ( minfps - frames ) )
 				setmode( xres, yres )
+				fontscale( 4, 4 )
 				centerX = gwidth / 2
 				centerY = gheight / 2
 				centerX2 = centerX
@@ -721,6 +767,7 @@ def proc setup
 				endif
 				if isMaxResolution = false then
 					setmode( xres, yres )
+					fontscale( 4, 4 )
 					centerX = gwidth / 2
 					centerY = gheight / 2
 					centerX2 = centerX
