@@ -56,6 +56,15 @@ message$ = ""
 oldScore = 0
 scoreTime = 0
 scoreBoost = 1
+dim oldPowerupColour( 3 )
+oldPowerupColour( 0 ) = 255
+oldPowerupColour( 1 ) = 255
+oldPowerupColour( 2 ) = 255
+dim powerupColour( 3 )
+powerupColour( 0 ) = 255
+powerupColour( 1 ) = 255
+powerupColour( 2 ) = 255
+powerupFade = 0
 starNum = 0
 while starNum < maxStars cycle
 	stars( starNum ) = rnd( 360 )
@@ -148,6 +157,13 @@ cycle
 		if rnd( 200 ) = 1 then
 			powerupAngle = ( rnd( vertices - 1 ) * gap ) + ( gap / 2 )
 			powerupDist = radius2
+			oldPowerupColour( 0 ) = powerupColour( 0 )
+			oldPowerupColour( 1 ) = powerupColour( 1 )
+			oldPowerupColour( 2 ) = powerupColour( 2 )
+			powerupColour( 0 ) = rnd( 200 ) + 55
+			powerupColour( 1 ) = rnd( 200 ) + 55
+			powerupColour( 2 ) = rnd( 200 ) + 55
+			powerupFade = 0
 		endif
 	endif
 	if powerupDist < radius then
@@ -174,13 +190,6 @@ cycle
 			endif
 		endif
 		powerupDist = radius
-	endif
-	if frames mod 5 = 0 then
-		if powerupColour = green then
-			powerupColour = lime
-		else
-			powerupColour = green
-		endif
 	endif
 	if warp = true then
 		radius = radius + ( gheight / 10 )
@@ -293,8 +302,18 @@ cycle
 		endif
 	endif
 	if warp = false then
-		colour = powerupColour
 		if powerupDist < radius then
+			powerupFade = powerupFade + 0.2
+			rgbcolour( fn lerp( oldPowerupColour( 0 ), powerupColour( 0 ), powerupFade ), fn lerp( oldPowerupColour( 1 ), powerupColour( 1 ), powerupFade ), fn lerp( oldPowerupColour( 2 ), powerupColour( 2 ), powerupFade ) )
+			if powerupFade = 1 then
+				oldPowerupColour( 0 ) = powerupColour( 0 )
+				oldPowerupColour( 1 ) = powerupColour( 1 )
+				oldPowerupColour( 2 ) = powerupColour( 2 )
+				powerupColour( 0 ) = rnd( 200 ) + 55
+				powerupColour( 1 ) = rnd( 200 ) + 55
+				powerupColour( 2 ) = rnd( 200 ) + 55
+				powerupFade = 0
+			endif
 			cX = fn lerp( centerX2, centerX, powerupDist / radius )
 			cY = fn lerp( centerY2, centerY, powerupDist / radius )
 			powerupX = ( ( ( powerupDist * cos( powerupAngle - ( gap / 2 ) ) ) + cX ) + ( ( powerupDist * cos( powerupAngle + ( gap / 2 ) ) ) + cX ) ) / 2
@@ -598,7 +617,6 @@ def proc setup
 	particleLaser = false
 	powerupAngle = 0
 	powerupDist = 0
-	powerupColour = green
 	while playerAngle > 360 cycle
 		playerAngle = playerAngle - 360
 	repeat
