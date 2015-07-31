@@ -1,4 +1,4 @@
-debugKeys = false
+debugKeys = true
 xres = 640
 yres = 480
 maxxres = 1920
@@ -7,8 +7,8 @@ minfps = 25
 maxfps = 35
 isMaxResolution = false
 totalFrames = 0
-setmode( xres, yres )
 updatemode = 0
+setmode( xres, yres )
 fontscale( 4, 4 )
 maxStars = 100
 dim stars( maxStars )
@@ -66,6 +66,22 @@ powerupColour( 1 ) = 255
 powerupColour( 2 ) = 255
 powerupFade = 0
 starNum = 0
+dim sfx( 9 )
+sfx( 0 ) = loadsample( "sfx/Enemy Destroyed_Close.wav" )
+sfx( 1 ) = loadsample( "sfx/Enemy Destroyed_Distant.wav" )
+sfx( 2 ) = loadsample( "sfx/Enemy Destroyed_Med.wav" )
+sfx( 3 ) = loadsample( "sfx/Particle Lazer Last shot.wav" )
+sfx( 4 ) = loadsample( "sfx/Particle Lazer Loop.wav" )
+sfx( 5 ) = loadsample( "sfx/Player Death Explosion.wav" )
+sfx( 6 ) = loadsample( "sfx/Single Lazer Shot.wav" )
+sfx( 7 ) = loadsample( "sfx/warp.wav" )
+sfx( 8 ) = loadsample( "sfx/powerup.wav" )
+setmusicvol( 80 )
+synthVortex = loadmusic( "sfx/Synthetic Vortex Master.mp3" )
+playmusic( synthVortex, -1 )
+highscores = open( "highscores.txt" )
+highscore = 0
+input# highscores, highscore
 while starNum < maxStars cycle
 	stars( starNum ) = rnd( 360 )
 	starsSpeed( starNum ) = rnd( 7 ) + 1
@@ -112,6 +128,11 @@ cycle
 							particleLaserSide = 1
 						else
 							particleLaserSide = 0
+						endif
+						if particleLaser = true then
+							playsample( sfx( 4 ), particleLaserSide + 1, 0 )
+						else
+							playsample( sfx( 6 ), 1, 0 )
 						endif
 						numLasers = numLasers + 1
 						laserCount = laserReload
@@ -167,11 +188,12 @@ cycle
 		endif
 	endif
 	if powerupDist < radius then
-		powerupDist = powerupDist + ( radius / 40 )
+		powerupDist = powerupDist + ( radius / 60 )
 	endif
 	if powerupDist > radius then
 		if powerupAngle > playerAngle - ( gap / 2 ) then
 			if powerupAngle < playerAngle + ( gap / 2 ) then
+				playsample( sfx( 8 ), 3, 0 )
 				if particleLaser = false then
 					if rnd( 1 ) = 0 then
 						scoreBoost = scoreBoost + 1
@@ -181,6 +203,7 @@ cycle
 						particleLaser = true
 						message$ = "Particle Laser!"
 						messageCount = 30
+						laserCount = laserReload
 					endif
 				else
 					scoreBoost = scoreBoost + 1
@@ -204,7 +227,7 @@ cycle
 		endif
 	else
 		if laserCount > 0 then
-			laserCount = laserCount - 5
+			laserCount = laserCount - 4
 		endif
 	endif
 	if enemies = true then
@@ -387,6 +410,15 @@ cycle
 											oldScore = score
 											scoreTime = 1
 											score = score + ( 10 * scoreBoost )
+											if enemyDist( e ) < ( radius - radius2 ) / 3 then
+												playsample( sfx( 1 ), 0, 0 )
+											else
+												if enemyDist( e ) > ( ( radius - radius2 ) / 3 ) * 2 then
+													playsample( sfx( 0 ), 0, 0 )
+												else
+													playsample( sfx( 2 ), 0, 0 )
+												endif
+											endif
 											if enemyDelay > 15 then
 												enemyDelay = enemyDelay - 1
 											endif
@@ -432,13 +464,24 @@ cycle
 			if enemyDist( i ) = radius + 1 then
 				if enemyAngle( i ) > playerAngle - ( gap / 2 ) then
 					if enemyAngle( i ) < playerAngle + ( gap / 2 ) then
+						playsample( sfx( 5 ), 3, 0 )
 						printat( twidth / 2 - 5, theight / 2 - 1 )
 						print "Game Over!"
 						printat( twidth / 2 - 5, theight / 2 + 1 )
 						print "Score: ";
 						print score
+						printat( twidth / 2 - 5, theight / 2 + 3 )
+						if score > highscore then
+							print "NEW HIGH SCORE!"
+							rewind( highscores )
+							print#( highscores ), score
+						else
+							print "high score: ";
+							print highscore
+						endif
 						update
 						wait( 2 )
+						stopmusic
 						end
 					endif
 				endif
@@ -478,6 +521,7 @@ cycle
 	polyend
 	if score > 0 then
 		if score mod 100 = 0 then
+			playsample( sfx( 7 ), 4, 0 )
 			oldScore = score
 			score = score + ( 10 * scoreBoost )
 			scoreTime = 1
@@ -722,8 +766,8 @@ def proc setup
 			angle = angle + gap
 		repeat
 		angle = 0
-		intro = intro + ( radius / 10 )
-		intro2 = intro2 + ( radius2 / 10 )
+		intro = intro + ( radius / 20 )
+		intro2 = intro2 + ( radius2 / 20 )
 		tmpPlayerAngle = fn lerp( oldPlayerAngle, playerAngle, intro / radius )
 		colour = yellow
 		playerX = ( ( ( radius * cos( tmpPlayerAngle - ( gap / 2 ) ) ) + tmpCenterX ) + ( ( radius * cos( tmpPlayerAngle + ( gap / 2 ) ) ) + tmpCenterX ) ) / 2
