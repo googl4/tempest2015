@@ -1,4 +1,4 @@
-debugKeys = true
+debugKeys = false
 xres = 640
 yres = 480
 maxxres = 1920
@@ -76,12 +76,17 @@ sfx( 5 ) = loadsample( "sfx/Player Death Explosion.wav" )
 sfx( 6 ) = loadsample( "sfx/Single Lazer Shot.wav" )
 sfx( 7 ) = loadsample( "sfx/warp.wav" )
 sfx( 8 ) = loadsample( "sfx/powerup.wav" )
-setmusicvol( 80 )
 synthVortex = loadmusic( "sfx/Synthetic Vortex Master.mp3" )
 playmusic( synthVortex, -1 )
 highscores = open( "highscores.txt" )
 highscore = 0
 input# highscores, highscore
+maxdebris = 20
+dim debris( maxdebris )
+dim debrisX( maxdebris )
+dim debrisY( maxdebris )
+dim debrisSpeedX( maxdebris )
+dim debrisSpeedY( maxdebris )
 while starNum < maxStars cycle
 	stars( starNum ) = rnd( 360 )
 	starsSpeed( starNum ) = rnd( 7 ) + 1
@@ -93,6 +98,7 @@ cycle
 	cls2
 	if scankeyboard( scanright ) then
 		if moveCount = 0 then
+			oldPlayerAngle = playerAngle
 			playerAngle = playerAngle + gap
 			moveCount = moveDelay
 			if playerAngle > 360 then
@@ -102,6 +108,7 @@ cycle
 	endif
 	if scankeyboard( scanleft ) then
 		if moveCount = 0 then
+			oldPlayerAngle = playerAngle
 			playerAngle = playerAngle - gap
 			moveCount = moveDelay
 			if playerAngle < 0 then
@@ -195,18 +202,13 @@ cycle
 			if powerupAngle < playerAngle + ( gap / 2 ) then
 				playsample( sfx( 8 ), 3, 0 )
 				if particleLaser = false then
-					if rnd( 1 ) = 0 then
-						scoreBoost = scoreBoost + 1
-						message$ = "Score Boost!"
-						messageCount = 30
-					else
-						particleLaser = true
-						message$ = "Particle Laser!"
-						messageCount = 30
-						laserCount = laserReload
-					endif
+					particleLaser = true
+					message$ = "Particle Laser!"
+					messageCount = 30
+					laserCount = laserReload
 				else
 					scoreBoost = scoreBoost + 1
+					score = score + ( 10 * scoreBoost )
 					message$ = "Score Boost!"
 					messageCount = 30
 				endif
@@ -292,9 +294,10 @@ cycle
 		oldY2 = y2
 		angle = angle + gap
 	repeat
+	tmpPlayerAngle = fn lerp( playerAngle, oldPlayerAngle, moveCount / moveDelay )
 	if warp = false then
-		playerX = ( ( ( radius * cos( playerAngle - ( gap / 2 ) ) ) + centerX ) + ( ( radius * cos( playerAngle + ( gap / 2 ) ) ) + centerX ) ) / 2
-		playerY = ( ( ( radius * sin( playerAngle - ( gap / 2 ) ) ) + centerY ) + ( ( radius * sin( playerAngle + ( gap / 2 ) ) ) + centerY ) ) / 2
+		playerX = ( ( ( radius * cos( tmpPlayerAngle - ( gap / 2 ) ) ) + centerX ) + ( ( radius * cos( tmpPlayerAngle + ( gap / 2 ) ) ) + centerX ) ) / 2
+		playerY = ( ( ( radius * sin( tmpPlayerAngle - ( gap / 2 ) ) ) + centerY ) + ( ( radius * sin( tmpPlayerAngle + ( gap / 2 ) ) ) + centerY ) ) / 2
 	endif
 	angle = 0
 	if moveCount > 0 then
@@ -405,6 +408,19 @@ cycle
 											enemyHealth( e ) = enemyHealth( e ) - 100
 										endif
 										if enemyHealth( e ) < 1 then
+											for w = 0 to maxdebris loop
+												if debris( w ) = 0 then
+													debris( w ) = 20
+													cX = fn lerp( centerX2, centerX, enemyDist( e ) / radius )
+													cY = fn lerp( centerY2, centerY, enemyDist( e ) / radius )
+													enemyX = ( ( ( enemyDist( e ) * cos( enemyAngle( e ) - ( gap / 2 ) ) ) + cX ) + ( ( enemyDist( e ) * cos( enemyAngle( e ) + ( gap / 2 ) ) ) + cX ) ) / 2
+													enemyY = ( ( ( enemyDist( e ) * sin( enemyAngle( e ) - ( gap / 2 ) ) ) + cY ) + ( ( enemyDist( e ) * sin( enemyAngle( e ) + ( gap / 2 ) ) ) + cY ) ) / 2
+													debrisX( w ) = enemyX
+													debrisY( w ) = enemyY
+													debrisSpeedX( w ) = rnd( gheight / 100 ) - gheight / 200
+													debrisSpeedY( w ) = rnd( gheight / 100 ) - gheight / 200
+												endif
+											repeat
 											enemyDist( e ) = radius
 											numEnemies = numEnemies - 1
 											oldScore = score
@@ -419,7 +435,7 @@ cycle
 													playsample( sfx( 2 ), 0, 0 )
 												endif
 											endif
-											if enemyDelay > 15 then
+											if enemyDelay > 10 then
 												enemyDelay = enemyDelay - 1
 											endif
 											break
@@ -506,8 +522,8 @@ cycle
 		repeat
 	endif
 	colour = yellow
-	c = cos( playerAngle + 90 )
-	s = sin( playerAngle + 90 )
+	c = cos( tmpPlayerAngle + 90 )
+	s = sin( tmpPlayerAngle + 90 )
 	u = gheight / 80
 	polystart
 		polyplot( ( u*5 * c ) - ( u*5 * s ) + playerX, ( u*5 * s ) + ( u*5 * c ) + playerY )
@@ -519,14 +535,25 @@ cycle
 		polyplot( 0 - ( u*-4 * s ) + playerX, ( u*-4 * c ) + playerY )
 		polyplot( ( u*7 * c ) - 0 + playerX, ( u*7 * s ) + playerY )
 	polyend
-	if score > 0 then
-		if score mod 100 = 0 then
+	if score > 100 then
+		if score mod 1000 < 100 then
 			playsample( sfx( 7 ), 4, 0 )
 			oldScore = score
 			score = score + ( 10 * scoreBoost )
 			scoreTime = 1
 			warp = true
 		endif
+	endif
+	if warp = false then
+		colour = red
+		for i = 0 to maxdebris loop
+			if debris( i ) > 0 then
+				debris( i ) = debris( i ) - 1
+				debrisX( i ) = debrisX( i ) + debrisSpeedX( i )
+				debrisY( i ) = debrisY( i ) + debrisSpeedY( i )
+				plot( debrisX( i ), debrisY( i ) )
+			endif
+		repeat
 	endif
 	if frames mod 3 = 0 then
 		ink = rnd( 14 ) + 1
@@ -667,6 +694,9 @@ def proc setup
 	while playerAngle < 0 cycle
 		playerAngle = 360 + playerAngle
 	repeat
+	for i = 0 to maxdebris loop
+		debris( i ) = 0
+	repeat
 	if oneTimeInit = false then
 		oldPlayerAngle = playerAngle
 		playerAngle = playerAngle - ( gap / 2 )
@@ -698,7 +728,7 @@ def proc setup
 	playerX = 0
 	playerY = 0
 	numEnemies = 0
-	moveDelay = int( ( 25 - vertices ) / 3 )
+	moveDelay = int( 40 / vertices )
 	moveCount = 0
 	powerupDist = radius + 1
 	numLasers = 0
