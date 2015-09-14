@@ -91,6 +91,7 @@ dim debrisSpeedY( maxdebris )
 lives = 3
 level = 1
 playerTurn = 0
+destroyed = false
 while starNum < 1000 cycle
 	stars( starNum ) = rnd( 360 )
 	starsSpeed( starNum ) = rnd( 300 / targetfps ) + 1
@@ -110,7 +111,7 @@ cycle
 					playerAngle = gap / 2
 				endif
 			else
-				if playerTurn > -30 then
+				if playerTurn > -45 then
 					playerTurn = playerTurn - 5
 				endif
 			endif
@@ -124,7 +125,7 @@ cycle
 					playerAngle = 360 - ( gap / 2 )
 				endif
 			else
-				if playerTurn < 30 then
+				if playerTurn < 45 then
 					playerTurn = playerTurn + 5
 				endif
 			endif
@@ -538,7 +539,7 @@ cycle
 							u = gheight / 160
 							lx = gwidth - ( ( u * 16 ) * lives )
 							ly = gheight - ( u * 8 )
-							for w = 0 to maxdebris loop
+							for w = 0 to maxdebris / 2 loop
 								if debris( w ) = 0 then
 									debris( w ) = targetfps * 0.6
 									debrisX( w ) = lx
@@ -547,6 +548,16 @@ cycle
 									debrisSpeedY( w ) = rnd( gheight / ( targetfps * 1.5 ) ) - gheight / ( targetfps * 3 )
 								endif
 							repeat
+							for w = 0 to maxdebris loop
+								if debris( w ) = 0 then
+									debris( w ) = targetfps * 0.6
+									debrisX( w ) = playerX
+									debrisY( w ) = playerY
+									debrisSpeedX( w ) = rnd( gheight / ( targetfps * 1.5 ) ) - gheight / ( targetfps * 3 )
+									debrisSpeedY( w ) = rnd( gheight / ( targetfps * 1.5 ) ) - gheight / ( targetfps * 3 )
+								endif
+							repeat
+							destroyed = true
 							if lives < 1 then
 								stopmusic
 								playsample( sfx( 5 ), 3, 0 )
@@ -588,20 +599,22 @@ cycle
 			repeat
 		endif
 	endif
-	colour = yellow
-	c = cos( tmpPlayerAngle + 90 + playerTurn )
-	s = sin( tmpPlayerAngle + 90 + playerTurn )
-	u = gheight / 80
-	polystart
-		polyplot( ( u*5 * c ) - ( u*5 * s ) + playerX, ( u*5 * s ) + ( u*5 * c ) + playerY )
-		polyplot( ( u*5 * c ) - 0 + playerX, ( u*5 * s ) + playerY )
-		polyplot( 0 - ( u*-2 * s ) + playerX, ( u*-2 * c ) + playerY )
-		polyplot( ( u*-5 * c ) - 0 + playerX, ( u*-5 * s ) + playerY )
-		polyplot( ( u*-5 * c ) - ( u*5 * s ) + playerX, ( u*-5 * s ) + ( u*5 * c ) + playerY )
-		polyplot( ( u*-7 * c ) - 0 + playerX, ( u*-7 * s ) + playerY )
-		polyplot( 0 - ( u*-4 * s ) + playerX, ( u*-4 * c ) + playerY )
-		polyplot( ( u*7 * c ) - 0 + playerX, ( u*7 * s ) + playerY )
-	polyend
+	if destroyed = false then
+		colour = yellow
+		c = cos( tmpPlayerAngle + 90 + playerTurn )
+		s = sin( tmpPlayerAngle + 90 + playerTurn )
+		u = gheight / 80
+		polystart
+			polyplot( ( u*5 * c ) - ( u*5 * s ) + playerX, ( u*5 * s ) + ( u*5 * c ) + playerY )
+			polyplot( ( u*5 * c ) - 0 + playerX, ( u*5 * s ) + playerY )
+			polyplot( 0 - ( u*-2 * s ) + playerX, ( u*-2 * c ) + playerY )
+			polyplot( ( u*-5 * c ) - 0 + playerX, ( u*-5 * s ) + playerY )
+			polyplot( ( u*-5 * c ) - ( u*5 * s ) + playerX, ( u*-5 * s ) + ( u*5 * c ) + playerY )
+			polyplot( ( u*-7 * c ) - 0 + playerX, ( u*-7 * s ) + playerY )
+			polyplot( 0 - ( u*-4 * s ) + playerX, ( u*-4 * c ) + playerY )
+			polyplot( ( u*7 * c ) - 0 + playerX, ( u*7 * s ) + playerY )
+		polyend
+	endif
 	if score > 100 then
 		if score mod 1000 < 100 then
 			playsample( sfx( 7 ), 4, 0 )
@@ -758,6 +771,7 @@ def proc setup
 	oldY2 = 0
 	angle = 0
 	particleLaser = false
+	destroyed = false
 	powerupAngle = 0
 	powerupDist = 0
 	while playerAngle > 360 cycle
