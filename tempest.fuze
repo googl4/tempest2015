@@ -4,8 +4,8 @@ yres = 480
 maxxres = 1920
 maxyres = 1080
 targetfps = 60
-minfps = targetfps - 5
-maxfps = targetfps + 5
+minfps = targetfps - 10
+maxfps = targetfps + 10
 isMaxResolution = false
 totalFrames = 0
 updatemode = 0
@@ -88,6 +88,9 @@ dim debrisX( maxdebris )
 dim debrisY( maxdebris )
 dim debrisSpeedX( maxdebris )
 dim debrisSpeedY( maxdebris )
+lives = 3
+level = 1
+playerTurn = 0
 while starNum < 1000 cycle
 	stars( starNum ) = rnd( 360 )
 	starsSpeed( starNum ) = rnd( 300 / targetfps ) + 1
@@ -98,7 +101,7 @@ proc setup
 cycle
 	cls2
 	if warp = false then
-		if scankeyboard( scanright ) then
+		if scankeyboard( scanright ) or scankeyboard( scand ) then
 			if moveCount = 0 then
 				oldPlayerAngle = playerAngle
 				playerAngle = playerAngle + gap
@@ -106,15 +109,23 @@ cycle
 				if playerAngle > 360 then
 					playerAngle = gap / 2
 				endif
+			else
+				if playerTurn > -30 then
+					playerTurn = playerTurn - 5
+				endif
 			endif
 		endif
-		if scankeyboard( scanleft ) then
+		if scankeyboard( scanleft ) or scankeyboard( scana ) then
 			if moveCount = 0 then
 				oldPlayerAngle = playerAngle
 				playerAngle = playerAngle - gap
 				moveCount = moveDelay
 				if playerAngle < 0 then
 					playerAngle = 360 - ( gap / 2 )
+				endif
+			else
+				if playerTurn < 30 then
+					playerTurn = playerTurn + 5
 				endif
 			endif
 		endif
@@ -126,7 +137,7 @@ cycle
 		print int( totalFrames / ( time / 1000 ) )
 		break
 	endif
-	if scankeyboard( scanspace ) then
+	if scankeyboard( scanspace ) or scankeyboard( scanreturn ) then
 		if laserCount = 0 then
 			if numLasers < maxLasers then
 				for i = 0 to maxLasers cycle
@@ -212,11 +223,17 @@ cycle
 					messageCount = targetfps
 					laserCount = laserReload
 				else
-					scoreBoost = scoreBoost + 1
-					score = score + ( 10 * scoreBoost )
-					scoreTime = 1
-					message$ = "Score Boost!"
-					messageCount = targetfps
+					if rnd( 4 ) = 1 then
+						lives = lives + 1
+						message$ = "Extra Life!"
+						messageCount = targetfps
+					else
+						scoreBoost = scoreBoost + 1
+						score = score + ( 10 * scoreBoost )
+						scoreTime = 1
+						message$ = "Score Boost!"
+						messageCount = targetfps
+					endif
 				endif
 			endif
 		endif
@@ -268,21 +285,39 @@ cycle
 		starY = starsCenterY + starY
 		starsDist( starNum ) = starsDist( starNum ) + starsSpeed( starNum )
 		if starX < 0 then
-			starsDist( starNum ) = 20
+			starsDist( starNum ) = rnd( 15 ) + 5
 		endif
 		if starX > gwidth then
-			starsDist( starNum ) = 20
+			starsDist( starNum ) = rnd( 15 ) + 5
 		endif
 		if starY < 0 then
-			starsDist( starNum ) = 20
+			starsDist( starNum ) = rnd( 15 ) + 5
 		endif
 		if starY > gheight then
-			starsDist( starNum ) = 20
+			starsDist( starNum ) = rnd( 15 ) + 5
 		endif
 		plot( starX, starY )
 		starNum = starNum + 1
 	repeat
 	starNum = 0
+	if lives > 0 then
+		colour = yellow
+		u = gheight / 160
+		for i = 1 to lives loop
+			lx = gwidth - ( ( u * 16 ) * i )
+			ly = gheight - ( u * 8 )
+			polystart
+				polyplot( u*5 + lx, u*5 + ly )
+				polyplot( u*5 + lx, 0 + ly )
+				polyplot( 0 + lx, u*-2 + ly )
+				polyplot( u*-5 + lx, 0 + ly )
+				polyplot( u*-5 + lx, u*5 + ly )
+				polyplot( u*-7 + lx, 0 + ly )
+				polyplot( 0 + lx, u*-4 + ly )
+				polyplot( u*7 + lx, 0 + ly )
+			polyend
+		repeat
+	endif
 	colour = blue
 	while angle < 360 cycle
 		x = radius * cos( angle )
@@ -405,17 +440,20 @@ cycle
 						laserY4 = ( ( laserDist( i ) ) * sin( laserAngle( i ) - 1 + ( gap / 4 ) ) ) + cY
 					endif
 				endif
-				line( laserX, laserY, laserX2, laserY2 )
-				line( laserX2, laserY2, laserX3, laserY3 )
-				line( laserX3, laserY3, laserX4, laserY4 )
-				line( laserX4, laserY4, laserX, laserY )
+				polystart
+					polyplot( laserX, laserY )
+					polyplot( laserX2, laserY2 )
+					polyplot( laserX3, laserY3 )
+					polyplot( laserX4, laserY4 )
+				polyend
 				laserDist( i ) = laserDist( i ) - ( radius / ( targetfps * 1.5 ) )
 				for e = 0 to maxEnemies cycle
 					if laserDist( i ) < radius then
 						if laserDist( i ) < enemyDist( e ) then
 							if laserAngle( i ) < enemyAngle( e ) + ( gap / 2 ) then
 								if laserAngle( i ) > enemyAngle( e ) - ( gap / 2 ) then
-									if enemyDist( e ) < radius then
+									if enemyDist( e ) = radius then
+									else
 										laserDist( i ) = radius2
 										numLasers = numLasers - 1
 										if particleLaser = true then
@@ -426,7 +464,7 @@ cycle
 										if enemyHealth( e ) < 1 then
 											for w = 0 to maxdebris loop
 												if debris( w ) = 0 then
-													debris( w ) = 20
+													debris( w ) = targetfps * 0.6
 													cX = fn lerp( centerX2, centerX, enemyDist( e ) / radius )
 													cY = fn lerp( centerY2, centerY, enemyDist( e ) / radius )
 													enemyX = ( ( ( enemyDist( e ) * cos( enemyAngle( e ) - ( gap / 2 ) ) ) + cX ) + ( ( enemyDist( e ) * cos( enemyAngle( e ) + ( gap / 2 ) ) ) + cX ) ) / 2
@@ -452,7 +490,7 @@ cycle
 												endif
 											endif
 											if enemyDelay > targetfps / 3 then
-												enemyDelay = enemyDelay - 1
+												enemyDelay = int( enemyDelay / 1.05 )
 											endif
 											break
 										endif
@@ -494,55 +532,65 @@ cycle
 				if enemyDist( i ) < radius then
 					enemyDist( i ) = enemyDist( i ) + ( radius / ( targetfps * 3 ) )
 				endif
-				if enemyDist( i ) = radius + 1 then
-					if enemyAngle( i ) > playerAngle - ( gap / 2 ) then
-						if enemyAngle( i ) < playerAngle + ( gap / 2 ) then
-							stopmusic
-							playsample( sfx( 5 ), 3, 0 )
-							printat( twidth / 2 - 5, theight / 2 - 1 )
-							print "Game Over!"
-							printat( twidth / 2 - 5, theight / 2 + 1 )
-							print "Score: ";
-							print score
-							printat( twidth / 2 - 5, theight / 2 + 3 )
-							if score > highscore then
-								print "NEW HIGH SCORE!"
-								rewind( highscores )
-								print#( highscores ), score
-							else
-								print "high score: ";
-								print highscore
+				if enemyDist( i ) > radius then
+					if enemyAngle( i ) > playerAngle - ( gap / 4 ) then
+						if enemyAngle( i ) < playerAngle + ( gap / 4 ) then
+							u = gheight / 160
+							lx = gwidth - ( ( u * 16 ) * lives )
+							ly = gheight - ( u * 8 )
+							for w = 0 to maxdebris loop
+								if debris( w ) = 0 then
+									debris( w ) = targetfps * 0.6
+									debrisX( w ) = lx
+									debrisY( w ) = ly
+									debrisSpeedX( w ) = rnd( gheight / ( targetfps * 1.5 ) ) - gheight / ( targetfps * 3 )
+									debrisSpeedY( w ) = rnd( gheight / ( targetfps * 1.5 ) ) - gheight / ( targetfps * 3 )
+								endif
+							repeat
+							if lives < 1 then
+								stopmusic
+								playsample( sfx( 5 ), 3, 0 )
+								printat( twidth / 2 - 5, theight / 2 - 1 )
+								print "Game Over!"
+								printat( twidth / 2 - 5, theight / 2 + 1 )
+								print "Score: ";
+								print score
+								printat( twidth / 2 - 5, theight / 2 + 3 )
+								if score > highscore then
+									print "NEW HIGH SCORE!"
+									rewind( highscores )
+									print#( highscores ), score
+								else
+									print "high score: ";
+									print highscore
+								endif
+								update
+								wait( 2 )
+								paperon
+								end
 							endif
-							update
-							wait( 2 )
-							paperon
-							end
+							lives = lives - 1
+							warp = true
 						endif
 					endif
-					if enemyMove( i ) > 0 then
-						enemyMove( i ) = enemyMove( i ) - 1
+					if enemyAngle( i ) < playerAngle then
+						enemyAngle( i ) = enemyAngle( i ) + ( 60 / targetfps )
+					else
+						enemyAngle( i ) = enemyAngle( i ) - ( 60 / targetfps )
 					endif
-					if enemyMove( i ) = 0 then
-						if enemyAngle( i ) > playerAngle then
-							enemyAngle( i ) = enemyAngle( i ) - ( gap / 2 )
-							enemyMove( i ) = moveDelay * 2
-						endif
-						if enemyAngle( i ) < playerAngle then
-							enemyAngle( i ) = enemyAngle( i ) + ( gap / 2 )
-							enemyMove( i ) = moveDelay * 2
-						endif
+					if enemyAngle( i ) > 360 then
+						enemyAngle( i ) = enemyAngle( i ) - 360
 					endif
-				else
-					if enemyDist( i ) > radius then
-						enemyDist( i ) = radius + 1
+					if enemyAngle( i ) < 0 then
+						enemyAngle( i ) = 360 + enemyAngle( i )
 					endif
 				endif
 			repeat
 		endif
 	endif
 	colour = yellow
-	c = cos( tmpPlayerAngle + 90 )
-	s = sin( tmpPlayerAngle + 90 )
+	c = cos( tmpPlayerAngle + 90 + playerTurn )
+	s = sin( tmpPlayerAngle + 90 + playerTurn )
 	u = gheight / 80
 	polystart
 		polyplot( ( u*5 * c ) - ( u*5 * s ) + playerX, ( u*5 * s ) + ( u*5 * c ) + playerY )
@@ -560,20 +608,19 @@ cycle
 			oldScore = score
 			score = score + ( 10 * scoreBoost )
 			scoreTime = 1
+			level = level + 1
 			warp = true
 		endif
 	endif
-	if warp = false then
-		colour = red
-		for i = 0 to maxdebris loop
-			if debris( i ) > 0 then
-				debris( i ) = debris( i ) - 1
-				debrisX( i ) = debrisX( i ) + debrisSpeedX( i )
-				debrisY( i ) = debrisY( i ) + debrisSpeedY( i )
-				plot( debrisX( i ), debrisY( i ) )
-			endif
-		repeat
-	endif
+	colour = red
+	for i = 0 to maxdebris loop
+		if debris( i ) > 0 then
+			debris( i ) = debris( i ) - 1
+			debrisX( i ) = debrisX( i ) + debrisSpeedX( i )
+			debrisY( i ) = debrisY( i ) + debrisSpeedY( i )
+			circle( debrisX( i ), debrisY( i ), debris( i ) / 6, true )
+		endif
+	repeat
 	if frames mod ( targetfps / 10 ) = 0 then
 		ink = rnd( 29 ) + 1
 	endif
@@ -581,7 +628,7 @@ cycle
 	if scoreTime > 0.1 then
 		scoreTime = scoreTime - 0.1
 	endif
-	print int( fn lerp( score, oldScore, scoreTime ) )
+	print "Score: "; int( fn lerp( score, oldScore, scoreTime ) )
 	if messageCount > 0 then
 		fontscale( 6, 6 )
 		printat( twidth / 2 - 7, theight / 2 )
@@ -589,6 +636,8 @@ cycle
 		messageCount = messageCount - 1
 		fontscale( 4, 4 )
 	endif
+	printat( 0, 1 )
+	print "Level: "; level
 	update
 	frames = frames + 1
 	if time - 1000 > oldTime then
@@ -607,7 +656,9 @@ cycle
 			oldRadius2 = radius2
 			radius = gheight / 2 - 50
 			radius2 = gheight / 8
+			powerupDist = ( oldRadius / powerupDist ) * radius
 			enemyCount = enemyDelay
+			messageCount = 0
 			for i = 0 to maxLasers cycle
 				if laserDist( i ) = oldRadius2 then
 					laserDist( i ) = radius2
@@ -649,6 +700,8 @@ cycle
 				radius = gheight / 2 - 50
 				radius2 = gheight / 8
 				powerupDist = ( oldRadius / powerupDist ) * radius
+				enemyCount = enemyDelay
+				messageCount = 0
 				if powerupDist = oldRadius then
 					powerupDist = radius
 				endif
@@ -796,6 +849,24 @@ def proc setup
 			starNum = starNum + 1
 		repeat
 		starNum = 0
+		if lives > 0 then
+			colour = yellow
+			u = gheight / 160
+			for i = 1 to lives loop
+				lx = gwidth - ( ( u * 16 ) * i )
+				ly = gheight - ( u * 8 )
+				polystart
+					polyplot( u*5 + lx, u*5 + ly )
+					polyplot( u*5 + lx, 0 + ly )
+					polyplot( 0 + lx, u*-2 + ly )
+					polyplot( u*-5 + lx, 0 + ly )
+					polyplot( u*-5 + lx, u*5 + ly )
+					polyplot( u*-7 + lx, 0 + ly )
+					polyplot( 0 + lx, u*-4 + ly )
+					polyplot( u*7 + lx, 0 + ly )
+				polyend
+			repeat
+		endif
 		colour = blue
 		while angle < 360 cycle
 			x = intro * cos( angle )
@@ -835,11 +906,20 @@ def proc setup
 			polyplot( ( 0 * c ) - ( u*-4 * s ) + playerX, ( 0 * s ) + ( u*-4 * c ) + playerY )
 			polyplot( ( u*7 * c ) - ( 0 * s ) + playerX, ( u*7 * s ) + ( 0 * c ) + playerY )
 		polyend
+		colour = red
+		for i = 0 to maxdebris loop
+			if debris( i ) > 0 then
+				debris( i ) = debris( i ) - 1
+				debrisX( i ) = debrisX( i ) + debrisSpeedX( i )
+				debrisY( i ) = debrisY( i ) + debrisSpeedY( i )
+				plot( debrisX( i ), debrisY( i ) )
+			endif
+		repeat
 		if frames mod 5 = 0 then
 			ink = rnd( 29 ) + 1
 		endif
 		printat( 0, 0 )
-		print score
+		print "Score: "; score
 		if messageCount > 0 then
 			fontscale( 6, 6 )
 			printat( twidth / 2 - 7, theight / 2 )
@@ -847,6 +927,8 @@ def proc setup
 			messageCount = messageCount - 1
 			fontscale( 4, 4 )
 		endif
+		printat( 0, 1 )
+		print "Level: "; level
 		update
 		frames = frames + 1
 		if time - 1000 > oldTime then
