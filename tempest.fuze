@@ -104,12 +104,17 @@ centerX2 = centerX
 centerY2 = centerY
 starsCenterX = centerX
 starsCenterY = centerY
+logosize = 10
 logo = newsprite( 1 )
 loadsprite( "logo.png", logo, 0 )
 setspritetrans( logo, 0, 0, 0 )
-setspritesize( logo, ( gwidth / getspritew( logo ) ) * 90 )
+setspritesize( logo, ( gwidth / getspritew( logo ) ) * logosize )
 loop
 	cls2
+	if logosize < 90 then
+		setspritesize( logo, ( gwidth / getspritew( logo ) ) * logosize )
+		logosize = logosize + 60 / targetfps
+	endif
 	plotsprite( logo, ( gwidth / 2 ) - ( getspritew( logo ) / 2 ), ( gheight / 2 ) - ( getspriteh( logo ) / 2 ), 0 )
 	if scankeyboard( scanspace ) then
 		hidesprite( logo )
@@ -154,7 +159,7 @@ loop
 			centerY2 = centerY
 			starsCenterX = centerX
 			starsCenterY = centerY
-			setspritesize( logo, ( gwidth / getspritew( logo ) ) * 90 )
+			setspritesize( logo, ( gwidth / getspritew( logo ) ) * logosize )
 		endif
 		if frames > maxfps then
 			if yres < maxyres then
@@ -178,7 +183,7 @@ loop
 				centerY2 = centerY
 				starsCenterX = centerX
 				starsCenterY = centerY
-				setspritesize( logo, ( gwidth / getspritew( logo ) ) * 90 )
+				setspritesize( logo, ( gwidth / getspritew( logo ) ) * logosize )
 				if xres = maxxres then
 					if yres = maxyres then
 						isMaxResolution = true
@@ -196,7 +201,7 @@ loop
 	endif
 	totalFrames = totalFrames + 1
 repeat
-cycle
+loop
 	cls2
 	if warp = false then
 		if scankeyboard( scanright ) or scankeyboard( scand ) then
@@ -398,24 +403,6 @@ cycle
 		starNum = starNum + 1
 	repeat
 	starNum = 0
-	if lives > 0 then
-		colour = yellow
-		u = gheight / 160
-		for i = 1 to lives loop
-			lx = gwidth - ( ( u * 16 ) * i )
-			ly = gheight - ( u * 8 )
-			polystart
-				polyplot( u*5 + lx, u*5 + ly )
-				polyplot( u*5 + lx, 0 + ly )
-				polyplot( 0 + lx, u*-2 + ly )
-				polyplot( u*-5 + lx, 0 + ly )
-				polyplot( u*-5 + lx, u*5 + ly )
-				polyplot( u*-7 + lx, 0 + ly )
-				polyplot( 0 + lx, u*-4 + ly )
-				polyplot( u*7 + lx, 0 + ly )
-			polyend
-		repeat
-	endif
 	colour = blue
 	while angle < 360 cycle
 		x = radius * cos( angle )
@@ -435,6 +422,24 @@ cycle
 		oldY2 = y2
 		angle = angle + gap
 	repeat
+	colour = yellow
+	if lives > 0 then
+		u = gheight / 160
+		for i = 1 to lives loop
+			lx = gwidth - ( ( u * 16 ) * i )
+			ly = gheight - ( u * 8 )
+			polystart
+				polyplot( u*5 + lx, u*5 + ly )
+				polyplot( u*5 + lx, 0 + ly )
+				polyplot( 0 + lx, u*-2 + ly )
+				polyplot( u*-5 + lx, 0 + ly )
+				polyplot( u*-5 + lx, u*5 + ly )
+				polyplot( u*-7 + lx, 0 + ly )
+				polyplot( 0 + lx, u*-4 + ly )
+				polyplot( u*7 + lx, 0 + ly )
+			polyend
+		repeat
+	endif
 	if playerAngle - oldPlayerAngle < ( ( 0 - 360 ) + gap ) + 1 then
 		tmpPlayerAngle = fn lerp( playerAngle + 360, oldPlayerAngle, moveCount / moveDelay )
 	else
@@ -493,15 +498,8 @@ cycle
 			cY = fn lerp( centerY2, centerY, powerupDist / radius )
 			powerupX = ( ( ( powerupDist * cos( powerupAngle - ( gap / 2 ) ) ) + cX ) + ( ( powerupDist * cos( powerupAngle + ( gap / 2 ) ) ) + cX ) ) / 2
 			powerupY = ( ( ( powerupDist * sin( powerupAngle - ( gap / 2 ) ) ) + cY ) + ( ( powerupDist * sin( powerupAngle + ( gap / 2 ) ) ) + cY ) ) / 2
-			c = cos( powerupAngle + 45 )
-			s = sin( powerupAngle + 45 )
-			u = powerupDist / 15
-			polystart
-				polyplot( ( u*2 * c ) - ( u*2 * s ) + powerupX, ( u*2 * s ) + ( u*2 * c ) + powerupY )
-				polyplot( ( u*2 * c ) - ( u*-2 * s ) + powerupX, ( u*2 * s ) + ( u*-2 * c ) + powerupY )
-				polyplot( ( u*-2 * c ) - ( u*-2 * s ) + powerupX, ( u*-2 * s ) + ( u*-2 * c ) + powerupY )
-				polyplot( ( u*-2 * c ) - ( u*2 * s ) + powerupX, ( u*-2 * s ) + ( u*2 * c ) + powerupY )
-			polyend
+			u = powerupDist / 8
+			circle( powerupX, powerupY, u, true )
 		endif
 		colour = aqua
 		for i = 0 to maxLasers cycle
@@ -588,7 +586,7 @@ cycle
 												endif
 											endif
 											if enemyDelay > targetfps / 3 then
-												enemyDelay = enemyDelay - 1
+												enemyDelay = enemyDelay - 240 / targetfps
 											endif
 											break
 										endif
@@ -731,7 +729,7 @@ cycle
 			circle( debrisX( i ), debrisY( i ), debris( i ) / 6, true )
 		endif
 	repeat
-	if frames mod ( targetfps / 10 ) = 0 then
+	if frames mod ( targetfps / 5 ) = 0 then
 		ink = rnd( 29 ) + 1
 	endif
 	printat( 0, 0 )
@@ -739,10 +737,16 @@ cycle
 		scoreTime = scoreTime - 0.1
 	endif
 	print "Score: "; int( fn lerp( score, oldScore, scoreTime ) )
+	if frames mod ( targetfps / 5 ) = 0 then
+		ink = rnd( 29 ) + 1
+	endif
 	if messageCount > 0 then
 		fontscale( 6, 6 )
 		printat( twidth / 2 - 7, theight / 2 )
 		print message$
+		if frames mod ( targetfps / 5 ) = 0 then
+			ink = rnd( 29 ) + 1
+		endif
 		messageCount = messageCount - 1
 		fontscale( 4, 4 )
 	endif
