@@ -104,6 +104,7 @@ centerX2 = centerX
 centerY2 = centerY
 starsCenterX = centerX
 starsCenterY = centerY
+i = 0
 logosize = 10
 logo = newsprite( 1 )
 loadsprite( "logo.png", logo, 0 )
@@ -112,9 +113,10 @@ setspritesize( logo, ( gwidth / getspritew( logo ) ) * logosize )
 loop
 	cls2
 	if logosize < 90 then
+		logosize = int( logosize + 60 / targetfps )
 		setspritesize( logo, ( gwidth / getspritew( logo ) ) * logosize )
-		logosize = logosize + 60 / targetfps
 	endif
+	i = i + ( 240 / targetfps )
 	plotsprite( logo, ( gwidth / 2 ) - ( getspritew( logo ) / 2 ), ( gheight / 2 ) - ( getspriteh( logo ) / 2 ), 0 )
 	if scankeyboard( scanspace ) then
 		hidesprite( logo )
@@ -550,6 +552,15 @@ loop
 								if laserAngle( i ) > enemyAngle( e ) - ( gap / 2 ) then
 									if enemyDist( e ) = radius then
 									else
+										if enemyDist( e ) > radius then
+											if playerTurn < 0 and enemyAngle( e ) > playerAngle then
+											else
+												if playerTurn > 0 and enemyAngle( e ) < playerAngle then
+												else
+													continue
+												endif
+											endif
+										endif
 										laserDist( i ) = radius2
 										numLasers = numLasers - 1
 										if particleLaser = true then
@@ -1008,8 +1019,8 @@ def proc setup
 		colour = yellow
 		playerX = ( ( ( radius * cos( tmpPlayerAngle - ( gap / 2 ) ) ) + tmpCenterX ) + ( ( radius * cos( tmpPlayerAngle + ( gap / 2 ) ) ) + tmpCenterX ) ) / 2
 		playerY = ( ( ( radius * sin( tmpPlayerAngle - ( gap / 2 ) ) ) + tmpCenterY ) + ( ( radius * sin( tmpPlayerAngle + ( gap / 2 ) ) ) + tmpCenterY ) ) / 2
-		c = cos( tmpPlayerAngle + 90 )
-		s = sin( tmpPlayerAngle + 90 )
+		c = cos( tmpPlayerAngle + 90 + playerTurn )
+		s = sin( tmpPlayerAngle + 90 + playerTurn )
 		u = gheight / 80
 		polystart
 			polyplot( ( u*5 * c ) - ( u*5 * s ) + playerX, ( u*5 * s ) + ( u*5 * c ) + playerY )
