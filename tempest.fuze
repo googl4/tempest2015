@@ -4,8 +4,8 @@ yres = 480
 maxxres = 1920
 maxyres = 1080
 targetfps = 60
-minfps = targetfps - 10
-maxfps = targetfps + 10
+minfps = targetfps - 5
+maxfps = targetfps + 5
 isMaxResolution = false
 totalFrames = 0
 updatemode = 0
@@ -98,7 +98,104 @@ while starNum < 1000 cycle
 	starsDist( starNum ) = rnd( gheight )
 	starNum = starNum + 1
 repeat
-proc setup
+centerX = gwidth / 2
+centerY = gheight / 2
+centerX2 = centerX
+centerY2 = centerY
+starsCenterX = centerX
+starsCenterY = centerY
+logo = newsprite( 1 )
+loadsprite( "logo.png", logo, 0 )
+setspritetrans( logo, 0, 0, 0 )
+setspritesize( logo, ( gwidth / getspritew( logo ) ) * 90 )
+loop
+	cls2
+	plotsprite( logo, ( gwidth / 2 ) - ( getspritew( logo ) / 2 ), ( gheight / 2 ) - ( getspriteh( logo ) / 2 ), 0 )
+	if scankeyboard( scanspace ) then
+		hidesprite( logo )
+		proc setup
+		break
+	endif
+	maxStars = gheight / 5
+	colour = white
+	while starNum < maxStars cycle
+		starX = starsDist( starNum ) * cos( stars( starNum ) )
+		starX = starsCenterX + starX
+		starY = starsDist( starNum ) * sin( stars( starNum ) )
+		starY = starsCenterY + starY
+		starsDist( starNum ) = starsDist( starNum ) + starsSpeed( starNum )
+		if starX < 0 then
+			starsDist( starNum ) = rnd( 15 ) + 5
+		endif
+		if starX > gwidth then
+			starsDist( starNum ) = rnd( 15 ) + 5
+		endif
+		if starY < 0 then
+			starsDist( starNum ) = rnd( 15 ) + 5
+		endif
+		if starY > gheight then
+			starsDist( starNum ) = rnd( 15 ) + 5
+		endif
+		plot( starX, starY )
+		starNum = starNum + 1
+	repeat
+	starNum = 0
+	update
+	frames = frames + 1
+	if time - 1000 > oldTime then
+		if frames < minfps then
+			yres = yres - ( ( 10 * ( minfps - frames ) ) * ( yres / xres ) )
+			xres = xres - ( 10 * ( minfps - frames ) )
+			setmode( xres, yres )
+			fontscale( 4, 4 )
+			centerX = gwidth / 2
+			centerY = gheight / 2
+			centerX2 = centerX
+			centerY2 = centerY
+			starsCenterX = centerX
+			starsCenterY = centerY
+			setspritesize( logo, ( gwidth / getspritew( logo ) ) * 90 )
+		endif
+		if frames > maxfps then
+			if yres < maxyres then
+				yres = yres + ( ( 10 * ( frames - maxfps ) ) * ( yres / xres ) )
+				if yres > maxyres then
+					yres = maxyres
+				endif
+			endif
+			if xres < maxxres then
+				xres = xres + ( 10 * ( frames - maxfps ) )
+				if xres > maxxres then
+					xres = maxxres
+				endif
+			endif
+			if isMaxResolution = false then
+				setmode( xres, yres )
+				fontscale( 4, 4 )
+				centerX = gwidth / 2
+				centerY = gheight / 2
+				centerX2 = centerX
+				centerY2 = centerY
+				starsCenterX = centerX
+				starsCenterY = centerY
+				setspritesize( logo, ( gwidth / getspritew( logo ) ) * 90 )
+				if xres = maxxres then
+					if yres = maxyres then
+						isMaxResolution = true
+						fullscreen = true
+					else
+						fullscreen = true
+					endif
+				else
+					fullscreen = false
+				endif
+			endif
+		endif
+		frames = 0
+		oldTime = time
+	endif
+	totalFrames = totalFrames + 1
+repeat
 cycle
 	cls2
 	if warp = false then
@@ -212,7 +309,7 @@ cycle
 		endif
 	endif
 	if powerupDist < radius then
-		powerupDist = powerupDist + ( radius / 60 )
+		powerupDist = powerupDist + ( radius / 80 )
 	endif
 	if powerupDist > radius then
 		if powerupAngle > playerAngle - ( gap / 2 ) then
@@ -491,7 +588,7 @@ cycle
 												endif
 											endif
 											if enemyDelay > targetfps / 3 then
-												enemyDelay = int( enemyDelay / 1.05 )
+												enemyDelay = enemyDelay - 1
 											endif
 											break
 										endif
