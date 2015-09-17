@@ -1,9 +1,15 @@
+# user settings:
+#######################
+
 debugKeys = false
-xres = 640
-yres = 480
+xres = 800
+yres = 600
 maxxres = 1920
 maxyres = 1080
 targetfps = 60
+
+########################
+
 minfps = targetfps - 5
 maxfps = targetfps + 5
 isMaxResolution = false
@@ -77,7 +83,7 @@ sfx( 5 ) = loadsample( "sfx/Player Death Explosion.wav" )
 sfx( 6 ) = loadsample( "sfx/Single Lazer Shot.wav" )
 sfx( 7 ) = loadsample( "sfx/warp.wav" )
 sfx( 8 ) = loadsample( "sfx/powerup.wav" )
-synthVortex = loadmusic( "sfx/Synthetic Vortex Master.mp3" )
+synthVortex = loadmusic( "sfx/Synthetic Vortex Master.flac" )
 playmusic( synthVortex, -1 )
 highscores = open( "highscores.txt" )
 highscore = 0
@@ -110,6 +116,7 @@ logo = newsprite( 1 )
 loadsprite( "logo.png", logo, 0 )
 setspritetrans( logo, 0, 0, 0 )
 setspritesize( logo, ( gwidth / getspritew( logo ) ) * logosize )
+advance = 5
 loop
 	cls2
 	if logosize < 90 then
@@ -584,6 +591,7 @@ loop
 											repeat
 											enemyDist( e ) = radius
 											numEnemies = numEnemies - 1
+											progress = progress + 1
 											oldScore = score
 											scoreTime = 1
 											score = score + ( 10 * scoreBoost )
@@ -721,15 +729,14 @@ loop
 			polyplot( ( u*7 * c ) - 0 + playerX, ( u*7 * s ) + playerY )
 		polyend
 	endif
-	if score > 100 then
-		if score mod 1000 < 100 then
-			playsample( sfx( 7 ), 4, 0 )
-			oldScore = score
-			score = score + ( 10 * scoreBoost )
-			scoreTime = 1
-			level = level + 1
-			warp = true
-		endif
+	if progress = advance then
+		playsample( sfx( 7 ), 4, 0 )
+		oldScore = score
+		score = score + ( 10 * scoreBoost )
+		scoreTime = 1
+		level = level + 1
+		warp = true
+		advance = advance + 1
 	endif
 	colour = red
 	for i = 0 to maxdebris loop
@@ -886,6 +893,7 @@ def proc setup
 	destroyed = false
 	powerupAngle = 0
 	powerupDist = 0
+	progress = 0
 	while playerAngle > 360 cycle
 		playerAngle = playerAngle - 360
 	repeat
