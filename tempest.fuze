@@ -1,9 +1,8 @@
-# user settings:
-#######################
+###### settings #######
 
 debugKeys = false
-xres = 800
-yres = 600
+xres = 640
+yres = 480
 maxxres = 1920
 maxyres = 1080
 targetfps = 60
@@ -101,7 +100,7 @@ destroyed = false
 while starNum < 1000 cycle
 	stars( starNum ) = rnd( 360 )
 	starsSpeed( starNum ) = rnd( 300 / targetfps ) + 1
-	starsDist( starNum ) = rnd( gheight )
+	starsDist( starNum  ) = rnd( gheight )
 	starNum = starNum + 1
 repeat
 centerX = gwidth / 2
@@ -275,6 +274,35 @@ loop
 			endif
 		endif
 	endif
+	if scankeyboard( scanup ) then
+		if smartbomb > 0 then
+			if warp = false then
+				for i = 0 to maxEnemies cycle
+					if enemyDist( i ) = radius then
+					else
+						cX = fn lerp( centerX2, centerX, enemyDist( i ) / radius )
+						cY = fn lerp( centerY2, centerY, enemyDist( i ) / radius )
+						enemyX = ( ( ( enemyDist( i ) * cos( enemyAngle( i ) - ( gap / 2 ) ) ) + cX ) + ( ( enemyDist( i ) * cos( enemyAngle( i ) + ( gap / 2 ) ) ) + cX ) ) / 2
+						enemyY = ( ( ( enemyDist( i ) * sin( enemyAngle( i ) - ( gap / 2 ) ) ) + cY ) + ( ( enemyDist( i ) * sin( enemyAngle( i ) + ( gap / 2 ) ) ) + cY ) ) / 2
+						for j = 0 to gheight / 10 loop
+							x = ( rnd( gwidth / 8 ) - ( gwidth / 16 ) ) + enemyX
+							y = ( rnd( gheight / 8 ) - ( gheight / 16 ) ) + enemyY
+							rgbcolour( rnd( 255 ), rnd( 50 ), rnd( 50 ) )
+							circle( x, y, gheight / 100, true )
+						repeat
+					endif
+				repeat
+			endif
+			smartbomb = smartbomb - 1
+			if smartbomb = 0 then
+				for i = 0 to maxEnemies cycle
+					enemyDist( i ) = radius
+					enemyAngle( i ) = 0
+					enemyHealth( i ) = 100
+				repeat
+			endif
+		endif
+	endif
 	if debugKeys = true then
 		if debugCount > 0 then
 			debugCount = debugCount - 1
@@ -340,11 +368,17 @@ loop
 						message$ = "Extra Life!"
 						messageCount = targetfps
 					else
-						scoreBoost = scoreBoost + 1
-						score = score + ( 10 * scoreBoost )
-						scoreTime = 1
-						message$ = "Score Boost!"
-						messageCount = targetfps
+						if rnd( 2 ) = 1 then
+							smartbomb = targetfps / 6
+							message$ = "S.M.4.R.T Bomb"
+							messageCount = targetfps
+						else
+							scoreBoost = scoreBoost + 1
+							score = score + ( 10 * scoreBoost )
+							scoreTime = 1
+							message$ = "Score Boost!"
+							messageCount = targetfps
+						endif
 					endif
 				endif
 			endif
@@ -737,6 +771,7 @@ loop
 		level = level + 1
 		warp = true
 		advance = advance + 1
+		enemyDelay = enemyDelay + 240 / targetfps
 	endif
 	colour = red
 	for i = 0 to maxdebris loop
@@ -891,6 +926,7 @@ def proc setup
 	angle = 0
 	particleLaser = false
 	destroyed = false
+	smartbomb = 0
 	powerupAngle = 0
 	powerupDist = 0
 	progress = 0
@@ -934,7 +970,7 @@ def proc setup
 	playerX = 0
 	playerY = 0
 	numEnemies = 0
-	moveDelay = int( ( targetfps * 1.2 ) / vertices )
+	moveDelay = int( ( 1.2 * targetfps ) / vertices )
 	moveCount = 0
 	powerupDist = radius + 1
 	numLasers = 0
