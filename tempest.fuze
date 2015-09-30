@@ -293,6 +293,12 @@ loop
 					endif
 				repeat
 			endif
+			for i = 0 to gheight / 20 loop
+				x = rnd( gwidth )
+				y = rnd( gheight )
+				rgbcolour( rnd( 255 ), rnd( 150 ), rnd( 150 ) )
+				circle( x, y, gheight / 100, true )
+			repeat
 			smartbomb = smartbomb - 1
 			if smartbomb = 0 then
 				for i = 0 to maxEnemies cycle
